@@ -1,0 +1,829 @@
+/* ==========================================================================
+   october.css — exam focus layer
+   Additive visual layer for the focused exam shell (rail navigation), the
+   sequential check answering tables, speech input, dimension weights and the
+   visual evaluation report. Loaded after globals.css / workspace.css.
+
+   Palette: navy #183149 · blue #176db5 · primary blue #2869ed · muted #526c80
+            pale #f1f6fb · border #dbe4ed · white
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Foundation — inheriting type, 16px body, tabular numbers
+   -------------------------------------------------------------------------- */
+body {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.exam-focus,
+.exam-focus button,
+.exam-focus input,
+.exam-focus textarea,
+.exam-focus select,
+.sequential-checks,
+.sequential-checks button,
+.sequential-checks input,
+.sequential-checks textarea,
+.speech-input-control,
+.speech-input-control button,
+.dimension-weight-config,
+.dimension-weight-config input,
+.report-view-tabs,
+.report-view-tabs button,
+.visual-report-grid,
+.visual-score-card,
+.visual-dimension-card,
+.report-leaderboard,
+.visual-feedback {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* --------------------------------------------------------------------------
+   2. Exam shell — sticky rail on the left, stage content on the right
+   -------------------------------------------------------------------------- */
+.exam-shell.exam-focus {
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr);
+  background: #f1f6fb;
+  background-image: none; /* the previous decorative gradient is dropped */
+  color: #183149;
+}
+
+.exam-focus .exam-rail {
+  grid-column: 1;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 12px;
+  background: white;
+  border-right: 1px solid #dbe4ed;
+}
+
+.exam-focus .rail-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #183149;
+}
+
+.exam-focus .rail-status {
+  margin-top: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #526c80;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.exam-focus .rail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Rail navigation: static column, no dividers, one full-width row per stage */
+.exam-focus .stage-tabs {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.exam-focus .exam-rail .stage-tabs button::before,
+.exam-focus .exam-rail .stage-tabs button::after {
+  content: none;
+  display: none;
+}
+
+.exam-focus .stage-tabs button {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 6px;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.exam-focus .stage-tabs button > b {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+}
+
+.exam-focus .exam-rail .stage-tabs button > span {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.exam-focus .exam-rail .stage-tabs button > small {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #526c80;
+}
+
+.exam-focus .stage-tabs button.active {
+  background: #f1f6fb;
+  box-shadow: inset 0 0 0 1px #dbe4ed;
+}
+
+@media (hover: hover) {
+  .exam-focus .stage-tabs button:not(:disabled):hover {
+    background: #f1f6fb;
+  }
+}
+
+/* Stage reading surface */
+.exam-focus .stage-content {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  max-width: none;
+  padding: 14px 20px 30px;
+}
+
+.exam-focus .stage-heading {
+  margin-bottom: 10px;
+  flex-direction: row;
+  align-items: center;
+}
+
+.exam-focus .diagnosis-checkpoint .add-row-button.block { width: calc(100% - 32px); margin-inline: 16px; }
+
+.exam-focus .stage-heading h1 {
+  font-size: 21px;
+}
+
+.exam-focus .stage-heading p {
+  display: none;
+}
+
+.exam-focus .stage-content .supplemental-disclosure {
+  margin: 12px 0;
+}
+
+.exam-focus .stage-submit-bar,
+.exam-focus .stage-submit-bar.compact {
+  width: 100%;
+  max-width: none;
+}
+
+.exam-focus .final-side,
+.exam-shell.exam-focus .final-side {
+  top: 14px;
+}
+
+@media (max-width: 760px) {
+  .exam-shell.exam-focus {
+    display: block;
+  }
+
+  .exam-focus .exam-rail {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 8px 12px;
+    border-right: 0;
+    border-bottom: 1px solid #dbe4ed;
+  }
+
+  .exam-focus .stage-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .exam-focus .exam-rail .stage-tabs button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+
+  .exam-focus .exam-rail .stage-tabs button > span {
+    grid-column: auto;
+    grid-row: auto;
+    font-size: 12px;
+  }
+
+  .exam-focus .exam-rail .stage-tabs button > b {
+    font-size: 12px;
+  }
+
+  .exam-focus .exam-rail .stage-tabs button > small {
+    display: none;
+  }
+
+  .exam-focus .rail-title {
+    display: none;
+  }
+
+  .exam-focus .rail-status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0;
+  }
+
+  /* Only the compact controls stay visible, laid out as one row. */
+  .exam-focus .rail-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .exam-focus .rail-actions button {
+    width: auto;
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .exam-focus .stage-content {
+    padding: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Sequential checks — answer table, nested lab table, row actions
+   -------------------------------------------------------------------------- */
+.sequential-checks {
+  background: white;
+  border: 1px solid #dbe4ed;
+  border-radius: 8px;
+}
+
+.check-table-help {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.check-table-help small {
+  font-size: 12px;
+  color: #526c80;
+}
+
+/* Keep visible so the project-name autocomplete can overflow the card. */
+.check-table-scroll {
+  overflow: visible;
+}
+
+.check-answer-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.check-answer-table th:nth-child(1) {
+  width: 7%;
+}
+
+.check-answer-table th:nth-child(2) {
+  width: 24%;
+}
+
+.check-answer-table th:nth-child(3) {
+  width: 34%;
+}
+
+.check-answer-table th:nth-child(4) {
+  width: 29%;
+}
+
+.check-answer-table th:nth-child(5) {
+  width: 6%;
+}
+
+.check-answer-table th {
+  padding: 12px;
+  background: #f1f6fb;
+  border-bottom: 1px solid #dbe4ed;
+  font-size: 14px;
+  text-align: left;
+}
+
+.check-answer-table td {
+  padding: 12px;
+  vertical-align: top;
+  border-right: 1px solid #dbe4ed;
+  border-bottom: 1px solid #dbe4ed;
+}
+
+.check-answer-table textarea {
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Nested lab result table: always its own, auto-sized table layout. */
+.check-lab-table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.check-lab-table th,
+.check-lab-table td {
+  width: auto !important; /* overrides the parent column widths */
+  padding: 5px;
+  border: 1px solid #dbe4ed;
+  text-align: left;
+  vertical-align: top;
+}
+
+.check-result-content {
+  max-height: 280px;
+  overflow: auto;
+}
+
+.check-result-content p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+  line-height: 1.7;
+}
+
+.check-result-content img,
+.check-lab-table img {
+  max-width: 100%;
+  height: auto;
+}
+
+.check-order {
+  text-align: center;
+}
+
+.check-order .row-drag,
+.check-order [draggable="true"] {
+  cursor: grab;
+}
+
+.check-order .row-drag:active,
+.check-order [draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.check-order > div {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.check-order button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px 6px;
+}
+
+.generate-check {
+  margin-top: 10px;
+  min-height: 40px;
+}
+
+.check-name-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
+.check-name-control .generate-check { margin-top: 0; min-height: 50px; padding-inline: 9px; font-size: 12px; }
+.check-name-control .autocomplete-field { min-width: 0; }
+.check-scoring-note { font-size: 13px; color: #526c80; margin-top: 8px; }
+.exam-focus .rail-status .save-status { display: block; color: #526c80; font-size: 12px; margin-top: 8px; }
+.exam-focus .rail-status .timer { color: #183149; font-size: 18px; }
+.visual-report-grid { align-items: start; }
+.score-number { flex: 0 0 auto; }
+.score-number span { margin-block: 8px; }
+.visual-report-grid h2 { font-size: 20px; margin-bottom: 10px; }
+.visual-report-grid p { margin-block: 10px; }
+.visual-report-grid small { display: block; font-size: 12px; line-height: 1.6; color: #526c80; }
+.visual-report-grid .text-link { color: #176db5; text-align: left; }
+.dimension-weight-config p { color: #526c80; font-size: 13px; line-height: 1.6; margin-block: 10px; }
+@media (max-width: 760px) { .weight-grid { grid-template-columns: 1fr; } }
+
+.delete-check {
+  color: #b32635;
+}
+
+.check-waiting,
+.check-result-empty {
+  color: #526c80;
+}
+
+.check-waiting {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.check-error {
+  margin: 6px 0 0;
+  color: #b32635;
+  font-size: 13px;
+}
+
+.sequential-checks > .add-row-button {
+  margin: 12px;
+}
+
+@media (max-width: 760px) {
+  /* Card layout: one block per field, labelled with data-label. */
+  .check-answer-table {
+    table-layout: auto;
+  }
+
+  .check-answer-table thead {
+    display: none;
+  }
+
+  .check-answer-table tbody,
+  .check-answer-table tr,
+  .check-answer-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .check-answer-table tr {
+    border-bottom: 1px solid #dbe4ed;
+  }
+
+  .check-answer-table td {
+    border-right: 0;
+  }
+
+  .check-answer-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #183149;
+  }
+
+  .check-answer-table .check-order {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    text-align: left;
+  }
+
+  .check-answer-table .check-order > div {
+    margin-top: 0;
+  }
+
+  /* The nested lab table keeps its real table layout. */
+  .check-lab-table {
+    display: table;
+    table-layout: auto;
+  }
+
+  .check-lab-table thead {
+    display: table-header-group;
+  }
+
+  .check-lab-table tbody {
+    display: table-row-group;
+  }
+
+  .check-lab-table tr {
+    display: table-row;
+  }
+
+  .check-lab-table td {
+    display: table-cell;
+    width: auto !important;
+  }
+
+  .check-lab-table td::before {
+    content: none;
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Speech input control
+   -------------------------------------------------------------------------- */
+.speech-input-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+
+.speech-input-control button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid #dbe4ed;
+  border-radius: 6px;
+  background: white;
+  color: #183149;
+  white-space: nowrap;
+}
+
+.speech-input-control button:focus-visible {
+  outline: 3px solid #176db5;
+  outline-offset: 2px;
+}
+
+.speech-input-control button svg {
+  display: block;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+}
+
+.speech-input-button.listening {
+  color: #b32635;
+  background: #fbeaec;
+  border-color: #e7b6bc;
+}
+
+.speech-input-control small {
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #526c80;
+}
+
+/* --------------------------------------------------------------------------
+   5. Dimension weight configuration
+   -------------------------------------------------------------------------- */
+.dimension-weight-config {
+  padding: 20px;
+  background: white;
+  border: 1px solid #dbe4ed;
+  border-radius: 8px;
+}
+
+.dimension-weight-config h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.weight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.weight-grid label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.weight-grid label input {
+  width: 80px;
+  padding: 8px 10px;
+  border: 1px solid #dbe4ed;
+  border-radius: 6px;
+  text-align: right;
+}
+
+.weight-error {
+  margin-top: 8px;
+  color: #b32635;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   6. Visual evaluation report
+   -------------------------------------------------------------------------- */
+.report-view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 16px;
+}
+
+.report-view-tabs button {
+  padding: 12px;
+  border: 1px solid #dbe4ed;
+  border-radius: 8px;
+  background: white;
+  color: #183149;
+}
+
+.report-view-tabs button.active,
+.report-view-tabs button[aria-pressed="true"] {
+  background: #2869ed;
+  border-color: #2869ed;
+  color: white;
+}
+
+.visual-report-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 20px;
+}
+
+.visual-score-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background: white;
+  border: 1px solid #dbe4ed;
+  border-radius: 10px;
+}
+
+.score-number strong {
+  display: block;
+  font-size: 56px;
+  line-height: 1;
+  color: #2869ed;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-number span {
+  display: block;
+  font-size: 13px;
+  color: #526c80;
+}
+
+.visual-dimension-card {
+  margin-top: 20px;
+  padding: 24px;
+  background: white;
+  border: 1px solid #dbe4ed;
+  border-radius: 10px;
+}
+
+.dimension-bar button {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+  background: none;
+  border: 0;
+}
+
+.dimension-bar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dimension-track {
+  display: block;
+  height: 12px;
+  margin: 8px 0;
+  border-radius: 999px;
+  background: #f1f6fb;
+  overflow: hidden;
+}
+
+.dimension-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2869ed;
+}
+
+.dimension-bar small {
+  color: #526c80;
+}
+
+.report-leaderboard {
+  padding: 22px;
+  background: white;
+  border: 1px solid #dbe4ed;
+  border-radius: 10px;
+}
+
+.report-leaderboard ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: rank;
+}
+
+.report-leaderboard li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #dbe4ed;
+}
+
+.report-leaderboard li:last-child {
+  border-bottom: 0;
+}
+
+.rank-position {
+  flex: 0 0 auto;
+  width: 28px;
+  font-size: 20px;
+  color: #176db5;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.leader-score {
+  font-size: 20px;
+  color: #2869ed;
+  font-variant-numeric: tabular-nums;
+}
+
+.personal-best {
+  margin-top: 18px;
+  font-size: 12px;
+  color: #526c80;
+}
+
+.visual-feedback {
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #dbe4ed;
+  border-radius: 10px;
+}
+
+@media (max-width: 1000px) {
+  .visual-report-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .visual-score-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .score-number strong {
+    font-size: 56px;
+  }
+}
+.supplemental-chat { margin-top: 24px; }
+.supplemental-chat .patient-stage { padding: 20px; }
+.supplemental-chat .experience-compose { margin-top: 0; }
+.experience-compose p { color: #61748c; font-size: 15px; margin: 8px 0 12px; }
+.supplemental-chat .transcript-list { height: 300px; }
+
+/* A single blank draft fills the exam drawer. */
+.notes-drawer {
+  width: min(620px, 100%);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.notes-drawer .free-draft {
+  min-height: 0;
+  padding: 20px;
+  grid-template-rows: auto minmax(0, 1fr);
+  font-size: 14px;
+  gap: 10px;
+}
+.notes-drawer .free-draft textarea {
+  height: 100%;
+  min-height: 0;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.7;
+  padding: 16px;
+}

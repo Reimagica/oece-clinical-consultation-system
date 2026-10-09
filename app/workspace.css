@@ -1,0 +1,169 @@
+/* Examination workspace and evidence reading refinements. */
+:root { --workspace-focus: #176db5; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid var(--workspace-focus); outline-offset: 3px; }
+.exam-header { padding-block: 12px; }
+.exam-header .save-status { max-width: 220px; line-height: 1.5; font-size: 12px; }
+.stage-tabs { padding-block: 8px; }
+.station-strip { padding-block: 10px; }
+.stage-heading { margin-bottom: 20px; }
+.stage-heading h1 { font-size: clamp(23px, 2.2vw, 30px); }
+.stage-content { max-width: 1480px; margin-inline: auto; }
+.supplemental-disclosure { margin: 12px 24px; border: 1px solid #dbe4ed; border-radius: 8px; background: white; }
+.supplemental-disclosure > summary { padding: 12px 16px; cursor: pointer; color: #17619c; font-weight: 600; }
+.patient-mode-tabs button[aria-pressed="true"] { color: #075a99; background: #eaf3fb; border-color: #7eacd0; }
+.submission-hint { padding: 12px 16px; background: #f1f6fb; color: #46627d; margin-bottom: 18px; line-height: 1.7; }
+.review-fieldset > .form-section { background: white; padding: 24px; margin-bottom: 20px; border: 1px solid #dbe4ed; border-radius: 12px; }
+.review-fieldset > .form-section textarea { min-height: 150px; width: 100%; }
+.timer small { display: block; font-size: 11px; white-space: normal; max-width: 160px; }
+.live-patient-head { flex-wrap: wrap; gap: 16px; }
+.live-patient-head label { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.live-patient-head input { width: auto; }
+.live-patient-turns { min-height: 180px; max-height: 420px; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: auto; }
+.live-patient-turns .turn { padding: 12px 16px; margin: 12px 0; max-width: 90%; border-radius: 8px; background: #f1f5f9; }
+.live-patient-turns .student { margin-left: auto; background: #eaf3fb; }
+.live-patient-turns b { font-size: 12px; color: #506578; }
+.live-patient-compose button { min-height: 40px; }
+.report-full-width { display: block; }
+.report-conflicts { background: #fff8e9; border: 1px solid #ecdcaf; padding: 12px 18px; margin-bottom: 18px; color: #68552d; }
+.report-conflicts summary { cursor: pointer; }
+.report-filter { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.report-filter select { width: auto; padding: 8px 12px; }
+.new-report-list > button { min-height: 76px; text-align: left; }
+.new-report-list > button strong { white-space: nowrap; }
+.evidence-dialog { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(640px, 94vw); max-width: none; height: 100dvh; max-height: none; padding: 0; border: 0; border-left: 1px solid #dbe4ed; color: #183149; background: white; box-shadow: -12px 0 40px #182f4726; }
+.evidence-dialog::backdrop { background: #102f4b36; }
+.evidence-dialog-inner { padding: 24px; }
+.evidence-dialog header { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: sticky; top: 0; background: white; padding-bottom: 12px; }
+.evidence-dialog h2 { font-size: 21px; margin-block: 20px 12px; }
+.evidence-dialog p { line-height: 1.75; margin-bottom: 12px; }
+.evidence-dialog input { display: block; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #b8c9d8; border-radius: 6px; }
+.evidence-dialog pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.9; background: #f4f7fa; padding: 16px; margin-top: 18px; }
+.evidence-dialog mark { background: #ffe29a; color: #3c3008; }
+.avatar-empty { min-height: 260px; display: grid; place-items: center; color: #627c91; font-size: 14px; }
+.live-experience .patient-stage { min-width: 0; }
+.experience-compose { margin-top: 14px; padding: 16px; background: #fff; border: 1px solid #dce6ed; border-radius: 10px; }
+.experience-compose label { display: block; font-weight: 600; margin-bottom: 8px; }
+.experience-compose textarea { display: block; width: 100%; resize: vertical; margin-bottom: 10px; }
+.experience-compose > div { display: flex; gap: 8px; flex-wrap: wrap; }
+.experience-note { padding: 12px 16px; color: #526c80; font-size: 13px; line-height: 1.6; }
+.report-rubric-group { border: 1px solid #dce5ec; border-radius: 8px; margin-bottom: 12px; background: #fff; overflow: hidden; }
+.report-rubric-group summary { display: flex; justify-content: space-between; cursor: pointer; padding: 16px 20px; font-weight: 700; background: #f2f7fa; }
+.report-rubric-group summary small { color: #58738a; font-weight: 400; }
+.report-rubric-group > div > button { width: 100%; border: 0; border-top: 1px solid #e8eef2; border-radius: 0; }
+.report-rubric-group > div > button.report-item-missing b { color: #b32635; }
+.evidence-dialog-inner { height: 100%; overflow-y: auto; }
+.evidence-block { padding: 16px 0; border-top: 1px solid #e1e9ef; }
+.evidence-block h3 { font-size: 14px; color: #526c80; margin: 0 0 10px; }
+.evidence-block p, .evidence-block pre { margin: 0; }
+.evidence-block pre { margin-top: 0; }
+.evidence-breakdown { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.evidence-breakdown span { padding: 5px 9px; background: #eaf3fa; border-radius: 4px; font-size: 13px; }
+.chart-placeholder { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 15px; border: 1px dashed #a9bfce; border-radius: 8px; color: #536f83; }
+.chart-placeholder > span { font-size: 24px; }
+.chart-placeholder small { margin-left: auto; }
+.new-report-overview strong { font-size: clamp(28px, 4vw, 44px); white-space: nowrap; }
+@media (max-width: 760px) {
+  .exam-header { gap: 10px; padding: 10px 14px; flex-wrap: wrap; }
+  .exam-head-actions { gap: 10px; flex-wrap: wrap; }
+  .exam-name { min-width: 0; }
+  .station-strip { gap: 10px; }
+  .stage-tabs > button { min-width: 0; padding: 10px 5px; }
+  .stage-tabs small { font-size: 10px; }
+  .stage-content { padding-inline: 12px; }
+  .new-report-top, .new-report-actions { flex-wrap: wrap; gap: 12px; }
+  .new-report-overview { grid-template-columns: 1fr; }
+  .new-report-list > button { gap: 12px; padding: 14px; }
+  .new-report-list > button strong { font-size: 13px; }
+  .review-fieldset > .form-section { padding: 16px; }
+  .evidence-dialog { inset: auto 0 0; width: 100%; height: 88dvh; border-radius: 16px 16px 0 0; }
+  .evidence-dialog-inner { padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Exam typography: reading and answering take priority over dashboard density. */
+.exam-shell { font-size: 16px; line-height: 1.5; }
+.exam-shell .stage-tabs button > span { font-size: 15px; }
+.exam-shell .stage-tabs button > small,
+.exam-shell .station-strip span,
+.exam-shell .station-strip small { font-size: 12px; }
+.exam-shell .stage-tabs button > b,
+.exam-shell .station-strip b,
+.exam-shell .station-strip strong { font-size: 14px; }
+.exam-shell .stage-heading p,
+.exam-shell .card-title > div > span { font-size: 12px; }
+.exam-shell .card-title h2 { font-size: 20px; }
+.exam-shell .card-title > small,
+.exam-shell .order-mode-note > small,
+.exam-shell .order-mode-note > span { font-size: 13px; }
+.exam-shell .submitted-order-label,
+.exam-shell .submitted-order-strip button span { font-size: 14px; }
+.exam-shell .submitted-order-strip button b { font-size: 13px; }
+.exam-shell .physical-results.ordered-results span,
+.exam-shell .result-source-title,
+.exam-shell .result-unavailable span { font-size: 14px; }
+.exam-shell .physical-results.ordered-results strong,
+.exam-shell .result-unavailable strong { font-size: 16px; }
+.exam-shell .interpret-item-head > span { font-size: 16px; }
+.exam-shell .interpret-item-head b,
+.exam-shell .interpret-item-head small { font-size: 13px; }
+.exam-shell .interpret-item > label,
+.exam-shell .form-section label,
+.exam-shell .voice-evidence-field label { font-size: 14px; }
+.exam-shell .interpret-item textarea,
+.exam-shell .form-section textarea,
+.exam-shell .voice-evidence-field textarea,
+.exam-shell .sort-row input { font-size: 16px; line-height: 1.6; }
+.exam-shell .lab-table span { font-size: 14px; line-height: 1.45; }
+.exam-shell .add-row-button,
+.exam-shell .result-workbench button,
+.exam-shell .readonly-banner { font-size: 14px; }
+.exam-shell .stage-submit-bar strong { font-size: 16px; }
+.exam-shell .stage-submit-bar span { font-size: 14px; }
+.exam-shell .case-recap > span { font-size: 13px; }
+.exam-shell .case-recap p { font-size: 14px; }
+.exam-shell .form-section-head > span { font-size: 14px; }
+.exam-shell .demo-helper,
+.exam-shell .paper-chip,
+.exam-shell .primary-button,
+.exam-shell .voice-evidence-button,
+.exam-shell .diagnosis-title button,
+.exam-shell .case-recap button { font-size: 14px; }
+.exam-shell .diagnosis-evolution > div span,
+.exam-shell .diagnosis-evolution > div strong { font-size: 13px; }
+.exam-shell .diagnosis-evolution > div p,
+.exam-shell .form-section-head p,
+.exam-shell .completion-card div b { font-size: 14px; }
+.exam-shell .completion-card div span { font-size: 14px; }
+.exam-shell .diagnosis-stage-grid header span,
+.exam-shell .diagnosis-stage-grid header b { font-size: 13px; }
+.exam-shell .stage-heading > div > span,
+.exam-shell .room-badge small,
+.exam-shell .patient-overlay small,
+.exam-shell .recent-audio strong,
+.exam-shell .recent-audio span,
+.exam-shell .mic-button b,
+.exam-shell .mic-button small,
+.exam-shell .transcript-head small,
+.exam-shell .transcript-list .turn b,
+.exam-shell .transcript-list .turn time,
+.exam-shell .transcript-list .turn button,
+.exam-shell .diagnosis-name-row b { font-size: 13px; }
+.exam-shell .patient-vitals small { font-size: 12px; }
+.exam-shell .patient-vitals b { font-size: 14px; }
+.exam-shell .transcript-list .turn p { font-size: 16px; line-height: 1.65; }
+.exam-shell .final-form .case-presentation-section textarea { min-height: 180px; }
+
+/* Keep submission checks beside the stage-four form. */
+.exam-shell .final-layout { grid-template-columns: minmax(0, 1fr) minmax(250px, 300px); align-items: start; }
+.exam-shell .final-side { grid-template-columns: 1fr; position: sticky; top: 112px; }
+@media (max-width: 820px) {
+  .exam-shell .final-layout { grid-template-columns: 1fr; }
+  .exam-shell .final-side { position: static; }
+  .exam-shell .stage-tabs button { padding-inline: 8px; column-gap: 6px; }
+  .exam-shell .stage-tabs button > span { font-size: 13px; }
+  .exam-shell .stage-tabs button > small { font-size: 11px; }
+}
+
+.exam-shell .voice-evidence-actions { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+.exam-shell .voice-evidence-actions .voice-evidence-button { position: static; min-height: 40px; padding: 8px 12px; margin: 0; flex: 0 0 auto; }
+.exam-shell .voice-evidence-actions .speech-input-control { margin: 0; }

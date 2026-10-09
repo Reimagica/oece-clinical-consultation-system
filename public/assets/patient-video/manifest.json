@@ -1,0 +1,38 @@
+{
+  "talk-start": {
+    "duration": 0.4,
+    "fps": 25,
+    "width": 640,
+    "height": 480,
+    "audioTracks": 0,
+    "sha256": "7062615a839fa3113902da1c4b06726eccf6a9955a685145e85bc54e862104f6",
+    "method": "MuseTalk1.5 offline mouth animation"
+  },
+  "talk-loop": {
+    "duration": 3,
+    "fps": 25,
+    "width": 640,
+    "height": 480,
+    "audioTracks": 0,
+    "sha256": "e256b6d74858ef964924d15ef12d6962dce674decec6a2ae75ee0c8601fa3631",
+    "method": "MuseTalk1.5 offline mouth animation"
+  },
+  "talk-end": {
+    "duration": 0.4,
+    "fps": 25,
+    "width": 640,
+    "height": 480,
+    "audioTracks": 0,
+    "sha256": "92749ceeb9385ef479ad16660099121f69f7010383b18bc9f7c768dc0500a70e",
+    "method": "MuseTalk1.5 offline mouth animation"
+  },
+  "cough": {
+    "duration": 1.6,
+    "fps": 25,
+    "width": 640,
+    "height": 480,
+    "audioTracks": 0,
+    "sha256": "50537c77aa0d50ad5337d5ec89e23c5411ad522458e69d01656e2ca219d65006",
+    "method": "simple animated head/shoulder nod"
+  }
+}

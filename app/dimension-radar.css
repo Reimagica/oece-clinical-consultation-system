@@ -1,0 +1,15 @@
+.report-radar-card { margin-top: 20px; padding: 24px; background: #fff; border: 1px solid #dbe4ed; border-radius: 16px; }
+.report-radar-layout { display: flex; justify-content: center; }
+.dimension-radar { display: block; width: 100%; max-width: 620px; height: auto; }
+.radar-grid { fill: none; stroke: #d7e3f5; stroke-width: 1; }
+.radar-axis { stroke: #d7e3f5; stroke-width: 1; }
+.radar-scale { font-size: 11px; fill: #7386a3; }
+.radar-axis-label { font-size: 14px; font-weight: 600; fill: #294568; }
+.radar-shape { fill: #2869ed; fill-opacity: .16; stroke: #2869ed; stroke-width: 2.5; stroke-linejoin: round; }
+.radar-segment { stroke: #2869ed; stroke-width: 2.5; }
+.radar-point { fill: #2869ed; stroke: white; stroke-width: 1.5; }
+@media (max-width: 600px) {
+  .report-radar-card { padding: 18px 12px; }
+  .radar-axis-label { font-size: 20px; }
+  .radar-scale { font-size: 14px; }
+}

@@ -1,0 +1,312 @@
+[
+  {
+    "turn": 1,
+    "text": "我已经咳嗽了3到4年了，最近3个月特别严重，几乎整天都在咳。",
+    "src": "/assets/patient-audio/turn-01.mp3",
+    "duration": 7.04,
+    "sha256": "9205c674a19cbf3e8092072ea187be3ac4a87331b2653d527a1f916d24e28a03",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 2,
+    "text": "我开始咳嗽时是在散步的时候，走多了就咳嗽，没什么明显诱因。",
+    "src": "/assets/patient-audio/turn-02.mp3",
+    "duration": 5.52,
+    "sha256": "2883e83c05d8590c35d7dc14b6f1b2815a2ee4e22e6b50c8c5317b898c301f44",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 3,
+    "text": "这3个月我会咳出白色或透明的痰，不过没有痰里带血的情况。",
+    "src": "/assets/patient-audio/turn-03.mp3",
+    "duration": 5.6,
+    "sha256": "a0863b3e2611de6f01b1dc67daf2172c07f13ef1619a12dd97132e72fbcec2f3",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 4,
+    "text": "没有特殊气味。",
+    "src": "/assets/patient-audio/turn-04.mp3",
+    "duration": 1.12,
+    "sha256": "4abb1a9f5af9d0d01f0f87dd44298ae8acafae50b80aaaa5e90a5f4ae8558a1d",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 5,
+    "text": "每次不多，但总觉得咳不完。",
+    "src": "/assets/patient-audio/turn-05.mp3",
+    "duration": 2.88,
+    "sha256": "ddc4d13b7aa189fd7206171421924ff4585947c260aa57aecd0da0ddad32b7b3",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 6,
+    "text": "咳嗽的时候会有呼吸困难的感觉，没有胸痛、发烧或者怕冷。",
+    "src": "/assets/patient-audio/turn-06.mp3",
+    "duration": 5.92,
+    "sha256": "ae204a0d77c43ec3639b4fb36643a6edf18b743cc70d2f3a91d171a421cfe57c",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 7,
+    "text": "活动后会更严重，现在即使在平地上走路也会发作。",
+    "src": "/assets/patient-audio/turn-07.mp3",
+    "duration": 4.24,
+    "sha256": "ae684ec2d2eada500be46bdda873c8209540411d552f5de5ccbeb0aa8bb20c8b",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 8,
+    "text": "我过去每天抽半包烟，持续了20年，但在40多岁时就戒烟了。",
+    "src": "/assets/patient-audio/turn-08.mp3",
+    "duration": 5.92,
+    "sha256": "2afab0e3f5857a249c3d283c36afbc7a3958528c9ac697a2e7ca5421fa1efb1d",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 9,
+    "text": "没有觉得嗓子干、痒，也没有反酸、烧心或者胸骨后不舒服的情况。",
+    "src": "/assets/patient-audio/turn-09.mp3",
+    "duration": 6.08,
+    "sha256": "d757fc6beba4bd83ea43356f3b271b4f197cc0d760b7a260fe7960de3ed08262",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 10,
+    "text": "我有冠心病、高血压、高血脂、糖尿病、慢性肾病，之前做过心梗的介入手术，现在长期吃阿司匹林、氨氯地平、赖诺普利、美托洛尔、阿托伐他汀和二甲双胍。",
+    "src": "/assets/patient-audio/turn-10.mp3",
+    "duration": 14.88,
+    "sha256": "ccf215bcb26758eb809471771eca148259c344f8aab4570008da757e8ae77b5f",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 11,
+    "text": "这2年没去复诊过，一直按医生要求吃药，没调整过药物剂量。",
+    "src": "/assets/patient-audio/turn-11.mp3",
+    "duration": 5.68,
+    "sha256": "e1191a7f4da7cd8a0d89d89cd00db8893d14e5f5cb0f61f10c3d5eba6a682d5f",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 12,
+    "text": "没有心跳加快或心慌。不过，我有脚踝肿胀，咳嗽的时候晚上躺下会更严重，需要坐起来才能稍微好一点。我还有膝盖疼和背痛，这些对我的日常生活影响很大。",
+    "src": "/assets/patient-audio/turn-12.mp3",
+    "duration": 14.56,
+    "sha256": "62b8eb4e1e2f3c460ca77de6f7971bd3095d749c241f0ac742d886baaa5bd0d1",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 13,
+    "text": "医生，我到底怎么了，是不是很严重？",
+    "src": "/assets/patient-audio/turn-13.mp3",
+    "duration": 3.68,
+    "sha256": "bc2990d74cb2b3675f73eb720b0c5c1456a08c1c64763bb59cabd2c43f65f17c",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 14,
+    "text": "好的，谢谢医生。我会配合检查。",
+    "src": "/assets/patient-audio/turn-14.mp3",
+    "duration": 2.72,
+    "sha256": "14480caa4ed48cdf6fd737df491ddba77050333402009d6bfc633d6e98e71736",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 15,
+    "text": "家族里有癌症、心脏病、高血压、糖尿病和类风湿性关节炎。我妹妹有类风湿关节炎。",
+    "src": "/assets/patient-audio/turn-15.mp3",
+    "duration": 8.32,
+    "sha256": "f17306eaa3ce6a749980f45575665e5cd98b5c10d7027d732ce30ce65d0a842f",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 16,
+    "text": "我已经结婚35年了。",
+    "src": "/assets/patient-audio/turn-16.mp3",
+    "duration": 1.92,
+    "sha256": "93e61b94c87c8ac1e094d0844d4db54a20d35509f750ddeee8e4134358f0654f",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 17,
+    "text": "我是女性，没有妻子，我和丈夫一起生活。",
+    "src": "/assets/patient-audio/turn-17.mp3",
+    "duration": 4.48,
+    "sha256": "cf219f74dca6caff599d5469ddaa89ca5c966d163b9f54ad80adb2d4c4c7e3da",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 18,
+    "text": "他身体还不错，没有特别严重的健康问题。",
+    "src": "/assets/patient-audio/turn-18.mp3",
+    "duration": 3.76,
+    "sha256": "6ed1f022cd542db34728fd32ed0dcbcea54b01dc15ef27371634e94be1ce1669",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 19,
+    "text": "有，我有三个成年子女。",
+    "src": "/assets/patient-audio/turn-19.mp3",
+    "duration": 2.72,
+    "sha256": "cf0259c26cda8ab4cec29ff99480a3001d9f41e86e191a175c318d1629689286",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 20,
+    "text": "他们都很健康，没有什么严重的问题。",
+    "src": "/assets/patient-audio/turn-20.mp3",
+    "duration": 3.44,
+    "sha256": "6fbb655a23fe1ed63dae56941fe1702faf35025caa7e3c0f5a03c82382b9d1d4",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 21,
+    "text": "我54岁就绝经了。",
+    "src": "/assets/patient-audio/turn-21.mp3",
+    "duration": 2.16,
+    "sha256": "ef1d7258624b463b9fb9f5252835665ba1ff7a74b61eea5ac986a07e13240560",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 22,
+    "text": "大约在13岁的时候。",
+    "src": "/assets/patient-audio/turn-22.mp3",
+    "duration": 1.76,
+    "sha256": "9ff39c8d6f08ce34d023503dc0413586303da6840256fcae99d77d5f53882348",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 23,
+    "text": "没有什么异常。",
+    "src": "/assets/patient-audio/turn-23.mp3",
+    "duration": 1.2,
+    "sha256": "eee086b28069915d6fd65b48056a2218d211776690c7e962e49e6bbed57f0008",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 24,
+    "text": "没有，我一直和丈夫在一起。",
+    "src": "/assets/patient-audio/turn-24.mp3",
+    "duration": 3.2,
+    "sha256": "e8466ae34fb862fae0fa4fb0ea5a58c6d80bfcd85191aced4ae3b52517e95365",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 25,
+    "text": "好的，请继续安排检查。",
+    "src": "/assets/patient-audio/turn-25.mp3",
+    "duration": 2.32,
+    "sha256": "8e8ab6b31a04bafa0e88e20f077c71a4591ceb043bca1d9f804205a2567a6832",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 26,
+    "text": "好的，我会配合的。",
+    "src": "/assets/patient-audio/turn-26.mp3",
+    "duration": 2.0,
+    "sha256": "91fd92b0744f257430155ff0a492fd2f3c53bdc9a95f36213343a9caff1512fd",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 27,
+    "text": "你需要告诉我哪些指标是生命体征？",
+    "src": "/assets/patient-audio/turn-27.mp3",
+    "duration": 3.52,
+    "sha256": "2e25ddd92e0dcd5eeac2c1f9ca1b017bb894f1a4a730656d4dc63106f2bc86fa",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 28,
+    "text": "抱歉，这些我不是特别清楚。",
+    "src": "/assets/patient-audio/turn-28.mp3",
+    "duration": 2.88,
+    "sha256": "c1d13613f307da9341515aecb43faebcf27c5ade760409e51a4e5d67859cdc88",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 29,
+    "text": "这些指标我不太了解。我只是觉得活动时有些呼吸困难。",
+    "src": "/assets/patient-audio/turn-29.mp3",
+    "duration": 5.2,
+    "sha256": "996569367a2e5add3ebef46afcfdd8d0c2896813282e669a8f9fb3f92b1195ef",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 30,
+    "text": "大小便没什么特别的问题，一切正常。",
+    "src": "/assets/patient-audio/turn-30.mp3",
+    "duration": 3.44,
+    "sha256": "ff36e4fd8af79d360c46791685fbba8551c40d91f89b8193de47773edc66a145",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  },
+  {
+    "turn": 31,
+    "text": "这三个月重了差不多10斤。",
+    "src": "/assets/patient-audio/turn-31.mp3",
+    "duration": 2.96,
+    "sha256": "b730942c48ebf67f7a9ad7561d5f286976187283276b097ecfe029863bf29fe8",
+    "model": "Qwen3-TTS-12Hz-0.6B-Base",
+    "voice": "Guoman-mature-synthetic-v1",
+    "referenceSha256": "5a5efcdcdb61055c4ddf57d3c3bff5dce297b263fcc02feb9bcc3245ae19d4a7"
+  }
+]

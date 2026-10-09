@@ -1,0 +1,100 @@
+/* 患者播放器（海报 + 视频）最小样式
+ * 仅本文件；无组件依赖、无动画/过渡、不改变其它文件。
+ * 蓝白站点色沿用 globals.css 变量，并带字面回退值。
+ */
+
+/* 舞台容器：铺满父级、裁掉溢出。浅色底，避免海报未就绪时出现黑底。 */
+.patient-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface, #f5f7fb);
+}
+
+/* 海报图与视频共用同一图层位置，cover 填充不变形。 */
+.patient-media img,
+.patient-media video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  filter: saturate(0.86) contrast(1.04);
+}
+
+.patient-frame .patient-media img {
+  transform: none;
+  transition: none;
+  filter: saturate(0.86) contrast(1.04);
+}
+
+.patient-media-tools button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Keep the main replay action in the flow alongside the media controls.
+   Absolute positioning over this new row caused overlap on small screens. */
+.exam-shell .patient-stage > .mic-button {
+  position: static;
+  translate: none;
+  margin: 12px auto 0;
+}
+
+/* 视频初始不可见；播放器就绪后由脚本加 .visible 显示。 */
+.patient-media video {
+  opacity: 0;
+}
+
+.patient-media video.visible {
+  opacity: 1;
+}
+
+/* 海报用 opacity 隐藏（而非 display），切换时不留黑底。 */
+.patient-media img.hidden {
+  opacity: 0;
+}
+
+/* 工具条：位于图片之外，保持普通文档流。 */
+.patient-media-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+/* 按钮：触控目标不小于 44px；白底蓝字，键盘焦点清晰。 */
+.patient-media-tools button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line, #e5eaf2);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--blue, #2869ed);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.patient-media-tools button:hover {
+  border-color: var(--blue, #2869ed);
+  background: var(--surface, #f5f7fb);
+}
+
+/* 选中/激活态用站点主蓝实心表示。 */
+.patient-media-tools button[aria-pressed="true"],
+.patient-media-tools button.active {
+  border-color: var(--blue2, #1954c7);
+  background: var(--blue, #2869ed);
+  color: #ffffff;
+}
+
+.patient-media-tools button:focus-visible {
+  outline: 3px solid var(--blue, #2869ed);
+  outline-offset: 2px;
+}
