@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import "./workspace.css";
 import "./october.css";
+import "./teacher-portal.css";
+import "./portal-shell.css";
 
 const title = "AIMED OECE 临床思维考核";
 const description = "AIMED OECE 标准化临床思维考核系统。";

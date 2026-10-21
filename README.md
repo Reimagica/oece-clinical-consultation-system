@@ -1,51 +1,40 @@
 # oece临床问诊系统
 
-面向医学生的病例模拟与临床思维形成性评估演示系统，包含教师建考、患者问诊、体格检查、辅助检查、病例汇报与诊疗计划，以及带评分证据的评价报告。
+面向医学生的病例模拟与临床思维形成性评估Demo，包含教师病例库和建考、学员四阶段考试、患者问诊及评分证据报告。
 
-本次源码交付日期：2026-10-09。基于已发布的版本9，原始源码提交为 `2fcd70b69cf793d8b6c67574d82380b1f9b44aab`。
+交付日期：2026年10月21日。代码来自公开版本14，源提交`13849d1e81eaf86b91ff7b4cb97c3481826f032c`。运行代码与原版本保持一致；本交付另补开发说明、评分方案文档，并移除原托管项目标识。
 
-## 本地启动
+**当前运行评分仍是既有Demo规则，未接入10月17日的R-IDEA/Chicago新方案，也未实现正式评分AI。**请先阅读[开发接手说明](DEVELOPMENT_HANDOFF.md)，不要将评分方案文档当作已实现的功能。
 
-需要 Node.js 22.13.0 或更高版本，以及 npm。本次交付使用 Node.js 24.15.0 验证。
+## 本地运行
 
-在项目根目录执行：
+需要Node.js 22.13.0或更高版本和npm。请使用锁文件安装：
 
 ```sh
 npm ci
 npm run dev
 ```
 
-打开终端显示的本地地址。可从首页进入教师端或学员端，使用页面中的演示入口体验完整病例流程。
+打开终端显示的地址。教师端入口为`/teacher/exams`、`/teacher/cases`，学员端入口为`/student/tasks`。可从页面使用固定Demo体验完整流程。
 
-项目使用 React、TypeScript、Vinext/Vite 和 Cloudflare Workers，保留 Sites 构建插件。使用 `npm run dev` 启动，以支持服务端的 Cloudflare 环境绑定。
+项目使用React、TypeScript、Vinext/Vite及Cloudflare Workers，保留Sites构建插件。请运行`npm run dev`，不要直接改用`next dev`或静态文件服务器，服务端包含`cloudflare:workers`绑定。
 
-## 功能与素材
+## AI配置
 
-- 四阶段：重点病史采集 → 体格检查 → 辅助检查 → 病例汇报与诊疗计划。
-- 固定患者对话回放、实时AI问诊、结束后补问、草稿记录与阶段作答。
-- 自由输入检查项目，逐项生成结果、填写分析及调整顺序。
-- 浏览器中文语音输入、31轮固定患者语音、开始/循环说话/停止/轻咳四段视频。
-- 七维报告：六维计分与百分制总分，问诊推理性待教师评价；评分证据、雷达图与演示排行榜。
+固定问诊演示、内置检查结果、演示作答和评分报告不需要API密钥。实时患者问答需要接收方自行配置。
 
-固定音视频已包含在 `public/assets/`，运行网页无需下载制作模型。`animation-source/` 和 `scripts/` 保留媒体制作资料；如需重新生成，另按 `PATIENT_AVATAR.md` 配置 Python、模型及工具。
-
-## 可选AI配置
-
-固定对话、演示作答、默认检查结果和报告不需要API密钥。实时患者问答需要自行配置 DeepSeek 密钥。
-
-本地开发可在项目根目录创建被 Git 忽略的 `.dev.vars`：
+在项目根目录创建被Git忽略的`.dev.vars`，填入自己的服务端密钥：
 
 ```dotenv
-DEEPSEEK_API_KEY=填写你自己的密钥
+DEEPSEEK_API_KEY=填写自己的密钥
+CHECK_RESULT_MODE=fixed
 ```
 
-部署时通过目标平台的服务端密文环境变量配置密钥。不要将真实密钥提交到GitHub，也不要使用 `NEXT_PUBLIC_` 等前端公开变量。
+`.env.example`只提供字段。`CHECK_RESULT_MODE=fixed`保持固定病例检查；显式改为`deepseek`才调用检查匹配模型。密钥不要使用`NEXT_PUBLIC_`等公开前缀。没有密钥时实时问答返回未就绪，固定演示仍可使用。
 
-默认检查结果来自固定病例资料。若需启用AI检查项目匹配，再配置 `CHECK_RESULT_MODE=deepseek`，详见 `CHECK_RESULT_SERVICE.md`。
+源码包不包含真实密钥、账号、研究成绩附件或既有部署权限。`.openai/hosting.json`仅保留空的d1/r2本地绑定；部署到新环境需要自行配置。
 
-本交付不包含任何实际API密钥、GitHub凭证或既有线上部署权限。`.openai/hosting.json` 仅保留空的本地绑定配置，已移除原Sites项目标识；部署到新环境需自行配置。
-
-## 验证与构建
+## 验证和生产预览
 
 ```sh
 node scripts/verify-p01.cjs
@@ -57,25 +46,44 @@ npm run lint
 npm run build
 ```
 
-生产构建后可运行 `npm run start`，以终端输出为准。上述验证脚本不需要媒体制作模型或 FFmpeg；重新制作媒体需另行配置工具。
+当前构建包含Cloudflare Workers绑定，完整生产预览请使用：
 
-## 代码导航
+```sh
+npx wrangler dev --config dist/server/wrangler.json --ip 127.0.0.1 --port 4178
+```
 
-| 位置 | 内容 |
+不要用保留在package中的`npm run start`作为完整API预览：它使用普通Node加载器，检查/患者API会因`cloudflare:`模块不受支持而报错。`npm run dev`用于日常开发，上述Wrangler命令用于本构建的完整生产预览。
+
+本次在Node.js 24.15.0、npm 11.12.1下完成干净安装、27项病例回归、患者API/播放/素材回归、类型检查、Lint、生产构建及Workers本地HTTP抽查。API和播放回归使用隔离模拟；不代表真实DeepSeek供应商、真人麦克风或跨设备声线已联调。固定素材检查不需要下载模型或FFmpeg，只有重新制作媒体才需额外配置。
+
+## 代码与资料导航
+
+| 路径 | 用途 |
 | --- | --- |
-| `app/demo-app.tsx` | 教师/学员界面及四阶段流程 |
-| `app/demo-data.ts`、`app/attempt-state.ts` | 数据结构、演示数据与本地状态 |
-| `app/heart-failure-dialogue.ts`、`app/case-checks.ts` | 对话脚本、体查与辅检资料 |
-| `app/heart-failure-rubric.ts`、`app/assessment.ts`、`app/score-policy.ts` | 评分细则、评分证据与总分规则 |
-| `app/api/` | 患者问答、检查结果及疾病检索接口 |
-| `app/patient-media.tsx`、`app/patient-playback.ts` | 音视频播放与同步 |
-| `app/evaluation-report.tsx`、`app/visual-report.tsx` | 评分证据和可视化报告 |
-| `public/assets/` | 页面使用的患者图片、语音和视频 |
+| `app/demo-app.tsx`、`app/attempt-state.ts` | 学员考试、路由与阶段/作答状态 |
+| `app/teacher-*.tsx`、`app/teacher-*.ts` | 教师病例管理、上传、编辑、三步建考、本地存储 |
+| `app/heart-failure-rubric.ts`、`app/assessment.ts`、`app/score-policy.ts` | 当前已运行的Demo评分与报告计算 |
+| `app/heart-failure-dialogue.ts`、`app/case-checks.ts` | 固定问诊脚本及检查资料 |
+| `app/api/` | 患者对话、检查结果、疾病检索三个API |
+| `app/patient-media.tsx`、`app/patient-playback.ts` | 音视频播放与生命周期 |
+| `public/assets/` | 页面所需患者图片、31条音频、固定视频片段 |
+| `animation-source/`、`scripts/` | 合成声参考、媒体制作脚本、回归验证及必要夹具 |
+| `docs/scoring/` | 待接入的通用规则、心衰给分表及专家核对问题，含此前人工修订 |
+| `FRONTEND_UI_GUIDELINES.md` | 当前界面与交互约定 |
+| `CHECK_RESULT_SERVICE.md`、`SUPPLEMENTAL_HISTORY.md`、`PATIENT_AVATAR.md` | 检查API、患者对话、固定媒体细节 |
+| `SOURCE_VERSION.json` | 来源版本及交付范围 |
 
-## 当前边界
+## 功能范围
 
-本项目为教学演示，不用于正式医学成绩判定或真实诊疗。病例与自动评分仍需医学教师核验，已知资料冲突在代码中保留待复核标记。
+- 教师病例库支持文档/JSON导入、本地新建编辑、复制导出、患者形象和声线配置，三步建考支持草稿与归档。
+- Agent上传页目前提供提示词和手动导入闭环，MCP服务尚未开放。
+- 学员仍只有郭曼心衰固定Demo；教师新增病例不会自动生成可考的学生端病例。
+- 四阶段为病史采集、体格检查、辅助检查、病例汇报与诊疗计划；检查逐行生成结果并填写分析，支持修改和换序。
+- 两种患者对话模式全程可继续提问；草稿、语音输入、固定媒体、评分证据、雷达图和演示排行榜保留。
+- 考试、病例和成绩主要保存在浏览器本地，没有正式账号、云端业务数据库、跨用户排行榜或教师复核发布流程。
 
-作答和本人演示成绩主要保存在当前浏览器；未实现正式用户认证、跨用户数据库、教师复核发布及真实跨用户排行榜。当前核心病例为固定心衰案例，新增病例需要同步接入病例、对话、检查和评分配置。真实麦克风、设备声线及外部AI调用体验需在接收方环境验证。
+## 不包含的文件
 
-本次交付未新增项目开源许可证；代码使用授权另行约定。第三方组件与媒体制作工具遵循各自许可证，MuseTalk许可保留在 `animation-source/MuseTalk-LICENSE.txt`。
+依赖目录、构建产物、运行缓存、日志、原项目Git历史、原托管项目标识、环境变量实值、模型权重、研究原始Word/Excel、个人成绩及工作区杂项均未打包。项目锁文件、固定运行素材和必要验证脚本保留。
+
+本交付未新增项目开源许可证，代码使用授权另行约定。第三方工具和组件遵循各自许可证，MuseTalk许可保留在`animation-source/MuseTalk-LICENSE.txt`。

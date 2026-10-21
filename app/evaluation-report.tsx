@@ -33,8 +33,8 @@ function EvidenceReader({ item, close }: { item: ScoredItem; close: () => void }
   </dialog>;
 }
 
-export default function EvaluationReportView({ role, exam, attempt, go }: {
-  role: "teacher" | "student"; exam: Exam | null; attempt: Attempt | null; go: (path: string) => void;
+export default function EvaluationReportView({ role, exam, attempt, go, backPath, allowReplay = true }: {
+  role: "teacher" | "student"; exam: Exam | null; attempt: Attempt | null; go: (path: string) => void; backPath?: string; allowReplay?: boolean;
 }) {
   const [active, setActive] = useState("history");
   const [view, setView] = useState<"visual" | "evidence">("visual");
@@ -46,7 +46,7 @@ export default function EvaluationReportView({ role, exam, attempt, go }: {
   const total = weightedScore(dimensions, exam.policy.dimensionWeights);
   const itemButton = (item: ScoredItem, index: number) => <button type="button" key={`${item.label}-${index}`} className={item.missing ? "report-item-missing" : ""} aria-haspopup="dialog" onClick={() => setSelected(item)}><span><b>{item.missing ? `缺少回答：${item.label}` : item.label}</b></span><strong>{item.earned === null ? "待复核" : `${item.earned}/${item.maximum}`} →</strong></button>;
   return <main className="new-report-shell">
-    <div className="new-report-top"><div><h1>临床思维评价报告</h1></div><div className="new-report-actions"><button className="outline-button" onClick={() => go(role === "teacher" ? `/teacher/exams/${exam.id}` : "/student/tasks")}>返回工作台</button><button className="primary-button" onClick={() => go(`/student/exam/${attempt.id}/stage/1`)}>回顾考试</button></div></div>
+    <div className="new-report-top"><div><h1>临床思维评价报告</h1></div><div className="new-report-actions"><button className="outline-button" onClick={() => go(backPath ?? (role === "teacher" ? `/teacher/exams/${exam.id}` : "/student/tasks"))}>{role === "teacher" ? "返回考试" : "返回工作台"}</button>{allowReplay && <button className="primary-button" onClick={() => go(`/student/exam/${attempt.id}/stage/1`)}>回顾考试</button>}</div></div>
     <nav className="report-view-tabs" role="tablist" aria-label="报告视图"><button type="button" id="report-tab-visual" role="tab" aria-selected={view === "visual"} aria-controls="report-panel-visual" className={view === "visual" ? "active" : ""} onClick={() => { setView("visual"); setSelected(null); }}>可视化报告</button><button type="button" id="report-tab-evidence" role="tab" aria-selected={view === "evidence"} aria-controls="report-panel-evidence" className={view === "evidence" ? "active" : ""} onClick={() => setView("evidence")}>评分明细与证据</button></nav>
     {view === "visual" ? <VisualReport exam={exam} attempt={attempt} dimensions={dimensions} score={total} viewDimension={id => { setActive(id); setView("evidence"); }} /> : <div id="report-panel-evidence" role="tabpanel" aria-labelledby="report-tab-evidence">
     <div className="new-report-overview"><div><span>本次综合得分</span><strong>{total === null ? "待复核" : <>{total.toFixed(1)}<small> / 100 分</small></>}</strong></div></div>

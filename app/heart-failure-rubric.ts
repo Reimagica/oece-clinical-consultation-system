@@ -1,4 +1,6 @@
-// Imported from 25练习一 心衰 病例信息及评分标准.docx; keep Word as source of truth.
+// History points checked against the corrected source Word supplied on 2026-10-16.
+// 41 existing items total 80; question matching and the other dimensions are unchanged.
+export const HISTORY_RUBRIC_VERSION = "hf-history-20261016";
 export type WordRubricItem = { group: string; section: string; label: string; max: number };
 export const historyRubric: WordRubricItem[] = [
   {
@@ -65,25 +67,25 @@ export const historyRubric: WordRubricItem[] = [
     "group": "问诊内容",
     "section": "现病史-主要症状特点",
     "label": "变化情况：持续性",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
     "section": "现病史-主要症状特点",
     "label": "变化情况：夜间明显",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
     "section": "现病史-主要症状特点",
     "label": "变化情况：少量",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
     "section": "现病史-主要症状特点",
     "label": "变化情况：白色/透明痰",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
@@ -143,19 +145,19 @@ export const historyRubric: WordRubricItem[] = [
     "group": "问诊内容",
     "section": "现病史-伴随症状",
     "label": "膝关节疼痛、麻木感",
-    "max": 2
+    "max": 1
   },
   {
     "group": "问诊内容",
     "section": "现病史-伴随症状",
     "label": "腰背部、钝痛",
-    "max": 2
+    "max": 1
   },
   {
     "group": "问诊内容",
     "section": "现病史-诊治经过",
     "label": "就诊经过：无",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
@@ -173,7 +175,7 @@ export const historyRubric: WordRubricItem[] = [
     "group": "问诊内容",
     "section": "现病史-一般情况",
     "label": "小便未见异常",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
@@ -185,19 +187,19 @@ export const historyRubric: WordRubricItem[] = [
     "group": "问诊内容",
     "section": "既往史",
     "label": "无哮喘病史",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
     "section": "既往史",
     "label": "高血压、高脂血症、2型糖尿病、慢性肾病",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
     "section": "既往史",
     "label": "近2年未规律复诊",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",
@@ -227,7 +229,7 @@ export const historyRubric: WordRubricItem[] = [
     "group": "问诊内容",
     "section": "家族史",
     "label": "父/母均有高血压/糖尿病",
-    "max": 1
+    "max": 2
   },
   {
     "group": "问诊内容",

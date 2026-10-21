@@ -46,3 +46,13 @@ __pycache__/
 *.p12
 *.pfx
 .dev.vars*
+
+# Cloudflare local secrets (never commit)
+/.dev.vars
+/.dev.vars.*
+
+# Local tooling and editor state
+/.codex/
+/.idea/
+/.vscode/
+/Thumbs.db

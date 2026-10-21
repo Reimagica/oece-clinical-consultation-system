@@ -1,29 +1,25 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
 
 import { useDeferredValue, useEffect, useId, useRef, useState } from "react";
 import { duplicateChecks } from "./case-checks";
 import LivePatientChat from "./live-patient-chat";
-import PatientMedia, { PatientMediaTools } from "./patient-media";
 import { speakPatientText, stopPatientPlayback } from "./patient-playback";
 import SequentialCheckTable from "./sequential-check-table";
 import SpeechInput from "./speech-input";
 import { fixedCheckResult } from "./check-results";
-import { defaultDimensionWeights, normalizeWeights, scoringDimensions, type DimensionWeights } from "./score-policy";
 import { restoreDemoState, updateActiveAttempt } from "./attempt-state";
 import EvaluationReportView from "./evaluation-report";
+import TeacherPortal from "./teacher-portal";
+import { PortalNavIcon } from "./teacher-ui";
 import {
   Attempt,
   DemoState,
   DiagnosisEntry,
   Exam,
-  PatientProfile,
-  PatientVoiceId,
   SearchLibraryItem,
   blankDiagnosis,
   caseFixture,
   conversationScript,
-  defaultPatientProfile,
   diagnosisLibrary,
   emptyAttempt,
   initialState,
@@ -31,63 +27,6 @@ import {
 } from "./demo-data";
 
 const STORAGE_KEY = "aimed-oece-heart-failure-v1";
-
-const patientVoiceOptions: Array<{
-  id: PatientVoiceId;
-  name: string;
-  detail: string;
-  gender: "男声" | "女声";
-  available: boolean;
-  recommended?: boolean;
-}> = [
-  {
-    id: "male-young",
-    name: "青年男性",
-    detail: "清朗 · 语速偏快",
-    gender: "男声",
-    available: false,
-  },
-  {
-    id: "male-middle",
-    name: "中年男性",
-    detail: "沉稳 · 清晰自然",
-    gender: "男声",
-    available: false,
-  },
-  {
-    id: "male-senior",
-    name: "老年男性",
-    detail: "低哑 · 语速较慢",
-    gender: "男声",
-    available: false,
-  },
-  {
-    id: "female-young",
-    name: "青年女性",
-    detail: "清亮 · 语速自然",
-    gender: "女声",
-    available: false,
-  },
-  {
-    id: "female-middle",
-    name: "中年女性",
-    detail: "中文女性声线 · 当前案例",
-    gender: "女声",
-    available: true,
-    recommended: true,
-  },
-  {
-    id: "female-senior",
-    name: "老年女性",
-    detail: "舒缓 · 语速较慢",
-    gender: "女声",
-    available: false,
-  },
-];
-
-const voiceNameMap = Object.fromEntries(
-  patientVoiceOptions.map((voice) => [voice.id, voice.name]),
-) as Record<PatientVoiceId, string>;
 
 const scriptedTurnTime = (turnIndex: number, patient = false) => {
   const pair = conversationScript[turnIndex];
@@ -161,16 +100,6 @@ function usePath() {
   return { path, go };
 }
 
-function formatTime(iso?: string) {
-  if (!iso) return "—";
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(iso));
-}
-
 function statusLabel(state: DemoState) {
   if (!state.exam) return "尚未创建";
   if (state.attempt?.status === "submitted") return "系统初评已生成";
@@ -228,13 +157,18 @@ export default function DemoApp() {
   };
 
   const publishExam = (exam: Exam) => {
-    setState((previous) => ({
-      ...previous,
+    if (restoreFailed) return false;
+    const next: DemoState = {
+      ...state,
       role: "teacher",
       exam,
       attempt: emptyAttempt(exam.id),
-    }));
+    };
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); }
+    catch { return false; }
+    setState(next);
     go(`/teacher/exams/${exam.id}`);
+    return true;
   };
 
   const updateAttempt = (updater: (attempt: Attempt) => Attempt) => {
@@ -268,13 +202,7 @@ export default function DemoApp() {
     );
 
   if (path === "/demo")
-    return (
-      <RoleLanding
-        onRole={setRole}
-        onReset={resetDemo}
-        hasData={Boolean(state.exam)}
-      />
-    );
+    return <RoleLanding onRole={setRole} />;
   if (path.startsWith("/student/exam/")) {
     return (
       <ExamWorkspace
@@ -291,21 +219,9 @@ export default function DemoApp() {
 
   const role = path.startsWith("/student") ? "student" : "teacher";
   return (
-    <PortalShell role={role} onRole={setRole} go={go} resetDemo={resetDemo}>
+    <PortalShell role={role} path={path} onRole={setRole} go={go} resetDemo={resetDemo}>
       {saveStatus.includes("失败") && <p role="alert" className="patient-live-error">{saveStatus} <button type="button" onClick={() => setState(previous => ({ ...previous }))}>重试保存</button></p>}
-      {path === "/teacher/exams/new" && (
-        <ExamWizard
-          onPublish={publishExam}
-          onCancel={() => go("/teacher/exams")}
-        />
-      )}
-      {path.startsWith("/teacher/submissions/") && (
-        <EvaluationReportView role="teacher" exam={state.exam} attempt={state.attempt} go={go} />
-      )}
-      {path.startsWith("/teacher/exams/") &&
-        path !== "/teacher/exams/new" &&
-        state.exam && <TeacherExamDetail state={state} go={go} />}
-      {path === "/teacher/exams" && <TeacherDashboard state={state} go={go} />}
+      {role === "teacher" && <TeacherPortal path={path} state={state} go={go} onPublish={publishExam} />}
       {path === "/student/tasks" && <StudentTasks state={state} go={go} onDemoComplete={runDemoExam} />}
       {path.endsWith("/brief") && (
         <BriefPage state={state} go={go} updateAttempt={updateAttempt} />
@@ -319,71 +235,33 @@ export default function DemoApp() {
 
 function RoleLanding({
   onRole,
-  onReset,
-  hasData,
 }: {
   onRole: (role: "teacher" | "student") => void;
-  onReset: () => void;
-  hasData: boolean;
 }) {
   return (
-    <main className="landing-page">
-      <section className="landing-panel">
-        <div className="landing-brand">
-          <div className="logo-seal">医</div>
-          <div>
-            <strong>AIMED</strong>
-            <span>AI MEDICAL EDUCATION</span>
-          </div>
-        </div>
-        <div className="landing-copy">
-          <span className="blue-kicker">AIMED 3.0 · OECE</span>
-          <h1>
-            让临床思维过程
-            <br />
-            <em>可观察、可回溯</em>
-          </h1>
-          <p>标准化临床考核，连接考试配置、过程作答与评估反馈。</p>
-          <div className="flow-mini">
-            {["病史采集", "体格检查", "辅助检查", "诊断与诊疗计划"].map(
-              (item, index) => (
-                <span key={item}>
-                  <b>{index + 1}</b>
-                  {item}
-                </span>
-              ),
-            )}
-          </div>
-        </div>
-        <div className="landing-foot">AIMED · 临床思维考核系统</div>
-      </section>
-      <section className="role-panel">
-        <div className="role-panel-head">
-          <p>系统入口</p>
-          <h2>选择工作端</h2>
-          <span>进入对应工作台继续考试流程。</span>
-        </div>
-        <button className="role-card teacher" onClick={() => onRole("teacher")}>
-          <span className="role-icon">师</span>
-          <div>
+    <main className="entry-page">
+      <section className="entry-panel" aria-labelledby="entry-title">
+        <header className="entry-brand">
+          <span aria-hidden="true">医</span>
+          <strong>AIMED</strong>
+        </header>
+        <h1 id="entry-title">选择工作端</h1>
+        <button type="button" className="entry-option" onClick={() => onRole("teacher")}>
+          <span className="entry-icon"><PortalNavIcon kind="cases" /></span>
+          <span className="entry-option-text">
             <strong>教师端</strong>
-            <small>创建考试 · 分配学员 · 查看提交</small>
-          </div>
-          <b>→</b>
+            <span>病例库 · 考试管理</span>
+          </span>
+          <span className="entry-arrow" aria-hidden="true">→</span>
         </button>
-        <button className="role-card student" onClick={() => onRole("student")}>
-          <span className="role-icon">生</span>
-          <div>
+        <button type="button" className="entry-option" onClick={() => onRole("student")}>
+          <span className="entry-icon"><PortalNavIcon kind="exams" /></span>
+          <span className="entry-option-text">
             <strong>学员端</strong>
-            <small>进入考试 · 完成四阶段 · 提交</small>
-          </div>
-          <b>→</b>
+            <span>我的考试 · 反馈</span>
+          </span>
+          <span className="entry-arrow" aria-hidden="true">→</span>
         </button>
-        {hasData && (
-          <button className="text-button reset-link" onClick={onReset}>
-            ↻ 重置考试数据
-          </button>
-        )}
       </section>
     </main>
   );
@@ -391,20 +269,29 @@ function RoleLanding({
 
 function PortalShell({
   role,
+  path,
   onRole,
   go,
   resetDemo,
   children,
 }: {
   role: "teacher" | "student";
+  path: string;
   onRole: (role: "teacher" | "student") => void;
   go: (path: string) => void;
   resetDemo: () => void;
   children: React.ReactNode;
 }) {
   const teacher = role === "teacher";
+  const studentFeedback = path.startsWith("/student/results/");
+  const studentPage = studentFeedback ? "评估与反馈" : path.endsWith("/brief") ? "任务说明" : "我的考试";
+  const teacherNav = [
+    { path: "/teacher/cases", label: "病例库", icon: "cases" as const },
+    { path: "/teacher/exams", label: "考试管理", icon: "exams" as const },
+  ];
+  const activeTeacherNav = path.startsWith("/teacher/submissions/") ? teacherNav[1] : (path === "/teacher" ? teacherNav[1] : teacherNav.find(item => path.startsWith(item.path)));
   return (
-    <main className="portal-shell">
+    <main className={`portal-shell${teacher ? " teacher-portal" : ""}`}>
       <a className="skip-link" href="#main-content">
         跳到主要内容
       </a>
@@ -416,38 +303,24 @@ function PortalShell({
         <div className="role-caption">
           {teacher ? "教师工作区" : "学员工作区"}
         </div>
-        <nav>
-          <button
-            className="nav-item active"
-            onClick={() => go(teacher ? "/teacher/exams" : "/student/tasks")}
-          >
-            ⌂ <span>{teacher ? "考试工作台" : "我的考试"}</span>
+        {teacher ? <nav aria-label="教师端导航">
+          {teacherNav.map(item => <button key={item.path} type="button" className={`nav-item${activeTeacherNav?.path === item.path ? " active" : ""}`} aria-current={activeTeacherNav?.path === item.path ? "page" : undefined} aria-label={item.label} onClick={() => go(item.path)}><PortalNavIcon kind={item.icon} /><span>{item.label}</span></button>)}
+        </nav> : <nav aria-label="学员端导航">
+          <button type="button" className={`nav-item${studentFeedback ? "" : " active"}`} aria-label="我的考试" aria-current={studentFeedback ? undefined : "page"} onClick={() => go("/student/tasks")}>
+            <PortalNavIcon kind="exams" /><span>我的考试</span>
           </button>
-          {teacher && (
-            <button
-              className="nav-item"
-              onClick={() => go("/teacher/exams/new")}
-            >
-              ＋ <span>创建考试</span>
-            </button>
-          )}
-          <button className="nav-item">
-            ◇ <span>{teacher ? "病例库" : "历史记录"}</span>
-          </button>
-          <button className="nav-item">
-            ◎ <span>评估与反馈</span>
-            <i>七维</i>
-          </button>
-        </nav>
+          <button type="button" className="nav-item" aria-label="历史记录"><PortalNavIcon kind="history" /><span>历史记录</span></button>
+          <button type="button" className={`nav-item${studentFeedback ? " active" : ""}`} aria-label="评估与反馈" aria-current={studentFeedback ? "page" : undefined}><PortalNavIcon kind="feedback" /><span>评估与反馈</span><i>七维</i></button>
+        </nav>}
         <div className="side-note">
-          <b>OECE</b>
-          <span>临床思维考核</span>
+          <b>{teacher ? "AIMED 3.0" : "OECE"}</b>
+          <span>{teacher ? "临床模拟教学" : "临床思维考核"}</span>
         </div>
       </aside>
       <section className="portal-content">
         <header className="portal-topbar">
           <div className="breadcrumbs">
-            AIMED 3.0 <span>/</span> {teacher ? "教师端" : "学员端"}
+            AIMED 3.0 <span>/</span> {teacher ? `教师端 / ${activeTeacherNav?.label ?? "考试反馈"}` : `学员端 / ${studentPage}`}
           </div>
           <div className="top-actions">
             <button className="ghost-button" onClick={resetDemo}>
@@ -502,116 +375,6 @@ function PageIntro({
   );
 }
 
-function TeacherDashboard({
-  state,
-  go,
-}: {
-  state: DemoState;
-  go: (path: string) => void;
-}) {
-  const status = statusLabel(state);
-  return (
-    <>
-      <PageIntro
-        kicker="EXAM CENTER"
-        title="考试工作台"
-        description="创建、发布并跟踪一场 OECE 临床思维考核。"
-        action={
-          <button
-            className="primary-button"
-            onClick={() => go("/teacher/exams/new")}
-          >
-            ＋ 新建考试
-          </button>
-        }
-      />
-      <section className="metric-grid">
-        {[
-          [
-            "进行中",
-            state.attempt?.status === "in_progress" ? "1" : "0",
-            "blue",
-          ],
-          [
-            "待提交",
-            state.attempt?.status === "in_progress" ? "1" : "0",
-            "amber",
-          ],
-          [
-            "系统初评",
-            state.attempt?.status === "submitted" ? "1" : "0",
-            "violet",
-          ],
-          ["已发布", state.exam ? "1" : "0", "green"],
-        ].map(([label, value, tone]) => (
-          <div className={`metric-card ${tone}`} key={label}>
-            <span>{label}</span>
-            <strong>{value}</strong>
-            <small>场考试</small>
-          </div>
-        ))}
-      </section>
-      <section className="panel-card">
-        <div className="panel-heading">
-          <div>
-            <h2>考试列表</h2>
-            <p>考试与学员状态</p>
-          </div>
-          <span className="table-count">共 {state.exam ? 1 : 0} 条</span>
-        </div>
-        {!state.exam ? (
-          <EmptyState
-            title="还没有考试"
-            body="从预置病例创建第一场 OECE，约 1 分钟即可完成配置。"
-            action={
-              <button
-                className="primary-button"
-                onClick={() => go("/teacher/exams/new")}
-              >
-                创建第一场考试
-              </button>
-            }
-          />
-        ) : (
-          <div
-            className="exam-list-row"
-            onClick={() => go(`/teacher/exams/${state.exam?.id}`)}
-          >
-            <div className="exam-badge">OE</div>
-            <div className="exam-list-main">
-              <strong>{state.exam.title}</strong>
-              <span>
-                {state.exam.caseName} · {state.exam.durationMinutes} 分钟 · 1
-                名学员
-              </span>
-              <div className="stage-dots">
-                {stages.map((item, index) => (
-                  <i
-                    className={
-                      (state.attempt?.completedStages || []).includes(index + 1)
-                        ? "done"
-                        : ""
-                    }
-                    key={item}
-                  >
-                    {index + 1}
-                  </i>
-                ))}
-              </div>
-            </div>
-            <span
-              className={`state-pill ${status.includes("系统初评") ? "violet" : ""}`}
-            >
-              {status}
-            </span>
-            <button className="link-button">查看详情 →</button>
-          </div>
-        )}
-      </section>
-    </>
-  );
-}
-
 function EmptyState({
   title,
   body,
@@ -628,570 +391,6 @@ function EmptyState({
       <p>{body}</p>
       {action}
     </div>
-  );
-}
-
-function ExamWizard({
-  onPublish,
-  onCancel,
-}: {
-  onPublish: (exam: Exam) => void;
-  onCancel: () => void;
-}) {
-  const [step, setStep] = useState(1);
-  const [title, setTitle] = useState("心力衰竭病例 OECE 临床思维考核");
-  const [description, setDescription] = useState(
-    "完成重点病史采集、体格检查、辅助检查、病例汇报与诊疗计划。",
-  );
-  const [allowReturn, setAllowReturn] = useState(false);
-  const [physicalOrderScoring, setPhysicalOrderScoring] = useState(true);
-  const [auxiliaryOrderScoring, setAuxiliaryOrderScoring] = useState(true);
-  const [dimensionWeights, setDimensionWeights] = useState<DimensionWeights>(() => ({ ...defaultDimensionWeights }));
-  const weightSum = Object.values(dimensionWeights).reduce((sum, value) => sum + value, 0);
-  const weightsValid = weightSum > 0 && Object.values(dimensionWeights).every(value => Number.isFinite(value) && value >= 0 && value <= 100);
-  const [patient, setPatient] = useState<PatientProfile>(() => ({
-    ...defaultPatientProfile,
-    avatarStatus: "idle",
-  }));
-  const avatarTimer = useRef<number | null>(null);
-  const [playingVoice, setPlayingVoice] = useState<PatientVoiceId | null>(null);
-  useEffect(() => {
-    return () => {
-      if (avatarTimer.current) window.clearTimeout(avatarTimer.current);
-      stopPatientPlayback();
-    };
-  }, []);
-  const updatePatient = (partial: Partial<PatientProfile>) =>
-    setPatient((previous) => ({ ...previous, ...partial }));
-  const generateAvatar = () => {
-    updatePatient({ avatarStatus: "generating" });
-    if (avatarTimer.current) window.clearTimeout(avatarTimer.current);
-    avatarTimer.current = window.setTimeout(
-      () => updatePatient({ avatarStatus: "ready" }),
-      1300,
-    );
-  };
-  const previewVoice = (voiceId: PatientProfile["voiceId"]) => {
-    updatePatient({ voiceId });
-    setPlayingVoice(voiceId);
-    speakPatientText(conversationScript[0].patient, () => setPlayingVoice(null));
-  };
-  const publish = () => {
-    if (!weightsValid) return;
-    onPublish({
-      id: "EXAM-OECE-001",
-      title,
-      description,
-      durationMinutes: 30,
-      caseId: caseFixture.id,
-      caseName: caseFixture.title,
-      studentId: "shanyi-ai-2025-flora-beijing-medical-001",
-      studentName: "编号 001 学员",
-      status: "published",
-      publishedAt: new Date().toISOString(),
-      policy: {
-        dimensionWeights: normalizeWeights(dimensionWeights),
-        allowHistoryReview: true,
-        allowSupplementalHistory: allowReturn,
-        physicalOrderScoringEnabled: physicalOrderScoring,
-        auxiliaryOrderScoringEnabled: auxiliaryOrderScoring,
-      },
-      patientProfile: { ...patient, avatarStatus: "ready" },
-    });
-  };
-  const profileField = (key: keyof PatientProfile, label: string, rows = 3) => (
-    <label>
-      {label}
-      <textarea
-        rows={rows}
-        value={String(patient[key])}
-        onChange={(event) => updatePatient({ [key]: event.target.value })}
-      />
-    </label>
-  );
-  return (
-    <>
-      <PageIntro
-        kicker="CREATE EXAM"
-        title="新建 OECE 考试"
-        description="配置考试、患者与考核规则。"
-      />
-      <div className="wizard-steps five">
-        {["考试信息", "患者档案", "形象与声线", "学员与规则", "发布"].map(
-          (item, index) => (
-            <div
-              className={`${step === index + 1 ? "active" : ""} ${step > index + 1 ? "done" : ""}`}
-              key={item}
-            >
-              <b>{step > index + 1 ? "✓" : index + 1}</b>
-              <span>{item}</span>
-            </div>
-          ),
-        )}
-      </div>
-      <section className="wizard-card">
-        {step === 1 && (
-          <div className="form-stack">
-            <SectionTitle number="01" title="考试信息" />
-            <label>
-              考试名称
-              <input value={title} onChange={(e) => setTitle(e.target.value)} />
-            </label>
-            <label>
-              考试说明
-              <textarea
-                rows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
-            <div className="field-grid">
-              <label>
-                考试类型
-                <input value="OECE · 独立评估" readOnly />
-              </label>
-              <label>
-                总时长
-                <input value="30 分钟" readOnly />
-              </label>
-            </div>
-            <div className="case-select selected">
-              <div className="case-thumb">心衰</div>
-              <div>
-                <span className="case-tag">
-                  {caseFixture.subject} · {caseFixture.tertiaryDiscipline}
-                </span>
-                <h3>{caseFixture.title}</h3>
-                <p>
-                  {caseFixture.profile} · {caseFixture.complaint}
-                </p>
-              </div>
-              <b>✓</b>
-            </div>
-          </div>
-        )}
-        {step === 2 && (
-          <div className="form-stack patient-profile-form">
-            <SectionTitle number="02" title="患者档案" />
-            <div className="field-grid three">
-              <label>
-                患者姓名
-                <input
-                  value={patient.name}
-                  onChange={(e) => updatePatient({ name: e.target.value })}
-                />
-              </label>
-              <label>
-                性别
-                <select
-                  value={patient.gender}
-                  onChange={(e) =>
-                    updatePatient({
-                      gender: e.target.value as PatientProfile["gender"],
-                    })
-                  }
-                >
-                  <option>男</option>
-                  <option>女</option>
-                  <option>未知</option>
-                </select>
-              </label>
-              <label>
-                年龄
-                <input
-                  type="number"
-                  min="1"
-                  value={patient.age}
-                  onChange={(e) =>
-                    updatePatient({ age: Number(e.target.value) })
-                  }
-                />
-              </label>
-            </div>
-            <div className="field-grid">
-              <label>
-                职业
-                <input
-                  value={patient.occupation}
-                  onChange={(e) =>
-                    updatePatient({ occupation: e.target.value })
-                  }
-                />
-              </label>
-              <label>
-                婚姻状况
-                <input
-                  value={patient.maritalStatus}
-                  onChange={(e) =>
-                    updatePatient({ maritalStatus: e.target.value })
-                  }
-                />
-              </label>
-            </div>
-            {profileField("chiefComplaint", "主诉", 2)}
-            {profileField("presentIllness", "现病史", 4)}
-            <div className="field-grid">
-              {profileField("pastHistory", "既往史")}
-              {profileField("personalHistory", "个人史")}
-            </div>
-            <div className="field-grid">
-              {profileField("familyHistory", "家族史")}
-              {profileField("allergyHistory", "过敏史")}
-            </div>
-            <details className="profile-more">
-              <summary>体格检查、辅助检查与诊疗信息</summary>
-              {profileField("physicalExam", "体格检查", 4)}
-              {profileField("auxiliaryExam", "辅助检查", 4)}
-            </details>
-          </div>
-        )}
-        {step === 3 && (
-          <div className="form-stack">
-            <SectionTitle number="03" title="患者形象与声线" />
-            <div className="avatar-builder">
-              <div className={`avatar-preview ${patient.avatarStatus}`}>
-                {patient.avatarStatus === "ready" ? <img
-                  src="/assets/patient-guoman.png"
-                  width="1456"
-                  height="1092"
-                  alt="标准化病人"
-                /> : patient.avatarStatus === "idle" ? <div className="avatar-empty">生成后预览患者形象</div> : null}
-                {patient.avatarStatus === "generating" && (
-                  <div className="avatar-generating" aria-live="polite">
-                    <span></span>
-                    <strong>正在生成患者形象</strong>
-                  </div>
-                )}
-              </div>
-              <div className="avatar-config">
-                <label>
-                  患者相貌描述
-                  <textarea
-                    rows={6}
-                    value={patient.appearanceDescription}
-                    onChange={(e) =>
-                      updatePatient({ appearanceDescription: e.target.value })
-                    }
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="outline-button"
-                  disabled={patient.avatarStatus === "generating"}
-                  onClick={generateAvatar}
-                >
-                  {patient.avatarStatus === "generating"
-                    ? "生成中…"
-                    : patient.avatarStatus === "ready"
-                      ? "重新生成患者形象"
-                      : "生成患者形象"}
-                </button>
-              </div>
-            </div>
-            <div className="voice-section">
-              <h3>患者声线</h3>
-              <div className="voice-groups">
-                {(["男声", "女声"] as const).map((gender) => (
-                  <section key={gender} className="voice-group">
-                    <div className="voice-group-head">
-                      <strong>{gender}</strong>
-                      <span>{gender === "女声" ? "1 种可选" : "待配置"}</span>
-                    </div>
-                    <div className="voice-options">
-                      {patientVoiceOptions
-                        .filter((voice) => voice.gender === gender)
-                        .map((voice) => (
-                          <button
-                            type="button"
-                            disabled={!voice.available}
-                            aria-pressed={patient.voiceId === voice.id}
-                            className={[
-                              patient.voiceId === voice.id ? "selected" : "",
-                              playingVoice === voice.id ? "playing" : "",
-                              !voice.available ? "unavailable" : "",
-                            ]
-                              .filter(Boolean)
-                              .join(" ")}
-                            key={voice.id}
-                            onClick={() => previewVoice(voice.id)}
-                          >
-                            <span className="voice-wave" aria-hidden="true">
-                              <i></i>
-                              <i></i>
-                              <i></i>
-                              <i></i>
-                              <i></i>
-                            </span>
-                            <strong>
-                              {voice.name}
-                              {voice.recommended && <em>当前案例</em>}
-                            </strong>
-                            <small>{voice.detail}</small>
-                            <span className="voice-status">
-                              {!voice.available
-                                ? "暂不可用"
-                                : playingVoice === voice.id
-                                  ? "播放中…"
-                                  : patient.voiceId === voice.id
-                                    ? "已选择"
-                                    : "试听"}
-                            </span>
-                          </button>
-                        ))}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        {step === 4 && (
-          <div className="form-stack">
-            <SectionTitle number="04" title="学员与规则" />
-            <div className="student-select">
-              <span className="avatar-lg">郭</span>
-              <div>
-                <strong>编号 001 学员</strong>
-                <p>2025 年练习一 · 固定脚本演示</p>
-              </div>
-              <b>已分配</b>
-            </div>
-            <section className="dimension-weight-config">
-              <h3>百分制总分 · 维度权重</h3>
-              <p>各维度先除以自身满分，再按相对权重折算为100分。默认六维等权；填0表示不计入总分。</p>
-              <div className="weight-grid">{scoringDimensions.map(({ id, title: dimensionTitle }) => <label key={id}><span>{dimensionTitle} <small>{weightSum > 0 ? `${(dimensionWeights[id] / weightSum * 100).toFixed(1)}%` : "—"}</small></span><input aria-label={`${dimensionTitle}权重`} type="number" min="0" max="100" step="1" value={dimensionWeights[id]} onChange={event => setDimensionWeights(previous => ({ ...previous, [id]: Number(event.target.value) }))} /></label>)}</div>
-              <p>病史采集推理性暂不计分，不参与总分权重。</p>
-              {!weightsValid && <p role="alert" className="weight-error">权重需在0至100之间，且至少一项大于0。</p>}
-            </section>
-            <div className="policy-list">
-              <label>
-                <div>
-                  <strong>允许查看过往阶段</strong>
-                  <span>可查看已提交阶段的信息</span>
-                </div>
-                <input type="checkbox" checked readOnly />
-              </label>
-              <label>
-                <div>
-                  <strong>允许补充问诊</strong>
-                  <span>开启后可在任意阶段继续向患者提问；关闭时只读历史对话</span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={allowReturn}
-                  onChange={(e) => setAllowReturn(e.target.checked)}
-                />
-              </label>
-              <label>
-                <div>
-                  <strong>提交后锁定当前阶段</strong>
-                  <span>已提交内容不可修改</span>
-                </div>
-                <input type="checkbox" checked readOnly />
-              </label>
-              <label className="order-scoring-policy">
-                <div>
-                  <strong>体格检查排序计分</strong>
-                  <span>考生始终可以排序；关闭后顺序只记录、不计分</span>
-                </div>
-                <span className="policy-control">
-                  <input
-                    type="checkbox"
-                    checked={physicalOrderScoring}
-                    onChange={(event) => setPhysicalOrderScoring(event.target.checked)}
-                  />
-                </span>
-              </label>
-              <label className="order-scoring-policy">
-                <div>
-                  <strong>辅助检查排序计分</strong>
-                  <span>考生始终可以排序；关闭后顺序只记录、不计分</span>
-                </div>
-                <span className="policy-control">
-                  <input
-                    type="checkbox"
-                    checked={auxiliaryOrderScoring}
-                    onChange={(event) => setAuxiliaryOrderScoring(event.target.checked)}
-                  />
-                </span>
-              </label>
-            </div>
-          </div>
-        )}
-        {step === 5 && (
-          <div className="form-stack">
-            <SectionTitle number="05" title="确认并发布" />
-            <div className="summary-grid">
-              <SummaryItem label="考试名称" value={title} />
-              <SummaryItem
-                label="患者"
-                value={`${patient.name} · ${patient.gender} · ${patient.age} 岁`}
-              />
-              <SummaryItem label="主诉" value={patient.chiefComplaint} />
-              <SummaryItem
-                label="患者声线"
-                value={voiceNameMap[patient.voiceId]}
-              />
-              <SummaryItem label="学员" value="编号 001 学员（1 人）" />
-              <SummaryItem label="时长" value="30 分钟" />
-              <SummaryItem label="阶段" value="4 个阶段" />
-              <SummaryItem label="总分" value="100分 · 六个维度加权" />
-              <SummaryItem label="维度权重" value={scoringDimensions.map(({id, title: name}) => `${name} ${(dimensionWeights[id] / weightSum * 100).toFixed(1)}%`).join("；")} />
-              <SummaryItem
-                label="补充问诊"
-                value={allowReturn ? "允许" : "仅查看转录"}
-              />
-              <SummaryItem
-                label="体查排序评分"
-                value={physicalOrderScoring ? "计入评分" : "不计入评分"}
-              />
-              <SummaryItem
-                label="辅检排序评分"
-                value={auxiliaryOrderScoring ? "计入评分" : "不计入评分"}
-              />
-            </div>
-          </div>
-        )}
-        <div className="wizard-actions">
-          <button type="button" className="demo-helper" disabled={!weightsValid} onClick={publish}>一键建考（Demo）</button>
-          <button
-            className="ghost-button"
-            onClick={
-              step === 1 ? onCancel : () => setStep((current) => current - 1)
-            }
-          >
-            {step === 1 ? "取消" : "上一步"}
-          </button>
-          {step < 5 ? (
-            <button
-              className="primary-button"
-              onClick={() => setStep((current) => current + 1)}
-            >
-              下一步
-            </button>
-          ) : (
-            <button className="primary-button" disabled={!weightsValid} onClick={publish}>
-              发布考试
-            </button>
-          )}
-        </div>
-      </section>
-    </>
-  );
-}
-
-function SectionTitle({
-  number,
-  title,
-  description,
-}: {
-  number: string;
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="section-title">
-      <span>{number}</span>
-      <div>
-        <h2>{title}</h2>
-        {description && <p>{description}</p>}
-      </div>
-    </div>
-  );
-}
-function SummaryItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="summary-item">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function TeacherExamDetail({
-  state,
-  go,
-}: {
-  state: DemoState;
-  go: (path: string) => void;
-}) {
-  const exam = state.exam!;
-  const attempt = state.attempt!;
-  const submitted = attempt.status === "submitted";
-  return (
-    <>
-      <PageIntro
-        kicker="EXAM DETAIL"
-        title={exam.title}
-        description={`${exam.caseName} · 发布于 ${formatTime(exam.publishedAt)}`}
-        action={
-          <button className="ghost-button" onClick={() => go("/student/tasks")}>
-            切换学员端预览 →
-          </button>
-        }
-      />
-      <section className="detail-hero">
-        <div>
-          <span className={`state-pill ${submitted ? "violet" : ""}`}>
-            {statusLabel(state)}
-          </span>
-          <h2>
-            {caseFixture.patient} · {caseFixture.complaint}
-          </h2>
-          <p>
-            {caseFixture.profile} · {caseFixture.vitals}
-          </p>
-        </div>
-        <div className="detail-stat">
-          <span>考试时长</span>
-          <strong>30 min</strong>
-        </div>
-        <div className="detail-stat">
-          <span>分配学员</span>
-          <strong>1</strong>
-        </div>
-      </section>
-      <section className="panel-card">
-        <div className="panel-heading">
-          <div>
-            <h2>学员进度</h2>
-            <p>查看考试状态与下一步操作</p>
-          </div>
-        </div>
-        <div className="student-row">
-          <span className="avatar-lg">郭</span>
-          <div>
-            <strong>编号 001 学员</strong>
-            <p>2025 年练习一</p>
-          </div>
-          <div>
-            <small>当前状态</small>
-            <b>{statusLabel(state)}</b>
-          </div>
-          <div>
-            <small>提交时间</small>
-            <b>{formatTime(attempt.submittedAt)}</b>
-          </div>
-          {submitted ? (
-            <button
-              className="primary-button"
-              onClick={() =>
-                go(`/teacher/submissions/${attempt.id}/evaluation`)
-              }
-            >
-              查看评估
-            </button>
-          ) : (
-            <button
-              className="ghost-button"
-              onClick={() => go("/student/tasks")}
-            >
-              查看学员端
-            </button>
-          )}
-        </div>
-      </section>
-    </>
   );
 }
 
@@ -1256,9 +455,7 @@ function StudentTasks({
               <span>▣ 自动保存</span>
               <span>
                 ◎{" "}
-                {exam.policy.allowSupplementalHistory
-                  ? "允许补充问诊"
-                  : "过往阶段只读"}
+                随时可向患者提问
               </span>
             </div>
           </div>
@@ -1384,11 +581,7 @@ function BriefPage({
               <div><dt>总时长</dt><dd>30 分钟</dd></div>
               <div><dt>阶段模式</dt><dd>依次提交</dd></div>
               <div><dt>历史信息</dt><dd>可回看</dd></div>
-              <div><dt>补充问诊</dt><dd>
-                {state.exam.policy.allowSupplementalHistory
-                  ? "允许"
-                  : "不可继续"}
-              </dd></div>
+              <div><dt>患者问诊</dt><dd>全程可用</dd></div>
               <div><dt>体查排序</dt><dd>
                 {state.exam.policy.physicalOrderScoringEnabled
                   ? "计分"
@@ -1458,6 +651,7 @@ function ExamWorkspace({
   const attempt = state.attempt;
   const exam = state.exam;
   const [notesOpen, setNotesOpen] = useState(false);
+  const [patientQuestion, setPatientQuestion] = useState(false);
   const [conversationState, setConversationState] = useState<
     "idle" | "recording" | "thinking" | "speaking"
   >("idle");
@@ -1480,6 +674,7 @@ function ExamWorkspace({
   const changeAttempt = (partial: Partial<Attempt>) =>
     updateAttempt((a) => ({ ...a, ...partial }));
   const visitStage = (index: number) => {
+    setPatientQuestion(false);
     if (index <= attempt.currentStage)
       go(`/student/exam/${attempt.id}/stage/${index}`);
   };
@@ -1618,19 +813,19 @@ function ExamWorkspace({
           return <button key={item} disabled={number > attempt.currentStage} aria-current={number === stageFromPath ? "step" : undefined} className={`${number === stageFromPath ? "active" : ""} ${attempt.completedStages.includes(number) ? "done" : ""}`} onClick={() => visitStage(number)}><b>{attempt.completedStages.includes(number) ? "✓" : number}</b><span>{item}</span><small>{attempt.status === "submitted" ? "已提交 · 可回看" : number > attempt.currentStage ? "未开放" : number === attempt.currentStage ? "进行中" : "已提交 · 可回看"}</small></button>;
         })}</nav>
         <div className="rail-status"><ExamTimer startedAt={attempt.startedAt} durationMinutes={exam.durationMinutes} /><span className="save-status" role="status">{saveStatus}</span></div>
-        <div className="rail-actions"><button className="outline-button" onClick={() => go("/student/tasks")}>返回任务</button>{attempt.status !== "submitted" && <button type="button" className="demo-helper" onClick={onDemoComplete}>一键考试（Demo）</button>}</div>
+        <div className="rail-actions"><button className="outline-button" onClick={() => go("/student/tasks")}>返回任务</button>{stageFromPath !== 1 && <button type="button" className="outline-button" onClick={() => { setPatientQuestion(true); go(`/student/exam/${attempt.id}/stage/1`); }}>患者对话</button>}{attempt.status !== "submitted" && <button type="button" className="demo-helper" onClick={onDemoComplete}>一键考试（Demo）</button>}</div>
       </aside>
       <section className="stage-content" id="exam-content">
       {isPast && (
         <div className="readonly-banner">
-          {attempt.status === "submitted" ? "考试已提交，作答只读；可返回第一阶段继续问诊。" : "当前正在回看已提交阶段，作答只读；补充问诊请返回第一阶段。"}
+          {attempt.status === "submitted" ? "考试已提交，作答只读；仍可通过患者对话继续问诊。" : "当前正在回看已提交阶段，作答只读；仍可通过患者对话继续问诊。"}
         </div>
       )}
         {stageFromPath === 1 && (
           <HistoryStage
             attempt={attempt}
             editable={editable}
-            allowSupplemental={exam.policy.allowSupplementalHistory}
+            startQuestion={patientQuestion}
             change={changeAttempt}
             conversationState={conversationState}
             nextConversation={nextConversation}
@@ -1783,7 +978,7 @@ function StageHeading({
 function HistoryStage({
   attempt,
   editable,
-  allowSupplemental,
+  startQuestion,
   change,
   conversationState,
   nextConversation,
@@ -1794,7 +989,7 @@ function HistoryStage({
 }: {
   attempt: Attempt;
   editable: boolean;
-  allowSupplemental: boolean;
+  startQuestion: boolean;
   change: (partial: Partial<Attempt>) => void;
   conversationState: "idle" | "recording" | "thinking" | "speaking";
   nextConversation: () => void;
@@ -1804,20 +999,6 @@ function HistoryStage({
   onSubmit: () => void;
 }) {
   const [patientTab, setPatientTab] = useState<"scripted" | "live">("scripted");
-  const latestPatient = [...attempt.transcript]
-    .reverse()
-    .find((t) => t.speaker === "patient");
-  const transcriptRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (transcriptRef.current)
-      transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
-  }, [attempt.transcript.length]);
-  const stateLabel = {
-    idle: attempt.transcript.filter(turn => turn.speaker === "patient" && turn.mode !== "live").length >= 25 ? "病患对话演示已结束" : attempt.transcript.length ? "继续对话回放" : "开始对话回放",
-    recording: "正在加载历史提问…",
-    thinking: "患者正在思考…",
-    speaking: "患者正在回答…",
-  }[conversationState];
   return (
     <>
       <StageHeading
@@ -1831,146 +1012,23 @@ function HistoryStage({
         <button type="button" aria-pressed={patientTab === "live"} onClick={() => { cancelConversation(); setPatientTab("live"); }}>实时交互体验</button>
       </div>
       {patientTab === "live" ? (
-        <LivePatientChat key={`${attempt.id}-live`} storageKey={`oece-patient-experience-v2:${attempt.id}`} allowSupplemental={allowSupplemental} />
+        <LivePatientChat key={`${attempt.id}-live`} storageKey={`oece-patient-experience-v2:${attempt.id}`} />
       ) : (
-      <div className="history-layout">
-        <section className="patient-stage">
-          <div
-            className={`patient-frame ${conversationState === "speaking" ? "speaking" : ""} ${conversationState === "thinking" ? "thinking" : ""}`}
-          >
-            <PatientMedia alt="58岁女性标准化病人郭曼，坐于病房床上" />
-            <div className="room-badge">
-              <span>
-                <i></i>历史回放
-              </span>
-              <small>急诊留观室 · 床旁评估</small>
-            </div>
-            <div className="patient-vitals">
-              <span>
-                <small>HR</small>
-                <b>97</b>
-              </span>
-              <span>
-                <small>SpO₂</small>
-                <b>90%</b>
-              </span>
-              <span>
-                <small>BP</small>
-                <b>111/79</b>
-              </span>
-            </div>
-            <div className="patient-overlay">
-              <span>{caseFixture.patient}</span>
-              <small>{caseFixture.profile} · 病房</small>
-            </div>
-            <div className="voice-rings"></div>
-            {conversationState === "thinking" && (
-              <div className="patient-thinking" aria-live="polite">
-                <i></i>
-                <i></i>
-                <i></i>
-                <span>正在思考</span>
-              </div>
-            )}
-          </div>
-          <PatientMediaTools />
-          <div className="recent-audio">
-            <button
-              type="button"
-              aria-label="播放患者最近回答"
-              disabled={!latestPatient || conversationState !== "idle"}
-              onClick={() =>
-                latestPatient && replayPatientAnswer(latestPatient.text)
-              }
-            >
-              ▶
-            </button>
-            <div>
-              <strong>{latestPatient ? "患者最近回答" : "等待开始问诊"}</strong>
-              <span>
-                {latestPatient?.text || "点击下方按钮，播放第一轮历史对话"}
-              </span>
-            </div>
-            <div className="mini-wave" aria-hidden="true">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
-                <i key={i}></i>
-              ))}
-            </div>
-          </div>
-          <button
-            disabled={
-              !editable ||
-              conversationState !== "idle" ||
-              attempt.transcript.filter((t) => t.speaker === "patient" && t.mode !== "live")
-                .length >= 25
-            }
-            className={`mic-button ${conversationState}`}
-            onClick={nextConversation}
-          >
-            <span aria-hidden="true">
-              {conversationState === "idle"
-                ? "●"
-                : conversationState === "recording"
-                  ? "■"
-                  : "•••"}
-            </span>
-            <b>{stateLabel}</b>
-            <small>
-              {conversationState === "idle" ? attempt.transcript.filter(turn => turn.speaker === "patient" && turn.mode !== "live").length >= 25 ? "可在下方继续补充问诊" : "播放下一轮历史对话" : "请稍候"}
-            </small>
-          </button>
-        </section>
-        <aside className="transcript-panel">
-          <div className="transcript-head">
-            <div>
-              <span className="live-dot"></span>
-              <strong>沟通记录</strong>
-            </div>
-            <small>{attempt.transcript.length} 条</small>
-          </div>
-          <div className="transcript-list" ref={transcriptRef}>
-            {attempt.transcript.length === 0 ? (
-              <div className="transcript-empty">
-                <span>⌁</span>
-                <strong>尚未开始问诊</strong>
-                <p>对话内容将在这里按时间顺序显示。</p>
-              </div>
-            ) : (
-              attempt.transcript.map((turn) => (
-                <div className={`turn ${turn.speaker}`} key={turn.id}>
-                  <div>
-                    <b>{turn.speaker === "student" ? "考生" : "郭曼"}</b>
-                    <time>阶段{turn.stage ?? 1} · {turn.mode === "live" ? "自主问诊" : "历史回放"} · {turn.time}</time>
-                  </div>
-                  <p>{turn.text}</p>
-                  {turn.speaker === "patient" && (
-                    <button
-                      type="button"
-                      aria-label={`重听${turn.time}的患者回答`}
-                      disabled={conversationState !== "idle"}
-                      onClick={() => replayPatientAnswer(turn.text)}
-                    >
-                      ▷ 重听
-                    </button>
-                  )}
-                </div>
-              ))
-            )}
-            {conversationState === "thinking" && (
-              <div className="turn patient pending">
-                <b>郭曼</b>
-                <p>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                </p>
-              </div>
-            )}
-          </div>
-        </aside>
-      </div>
+        <LivePatientChat
+          key={`${attempt.id}-scripted`}
+          storageKey={`oece-patient-supplemental-v1:${attempt.id}`}
+          startQuestion={startQuestion}
+          context={attempt.transcript.filter(turn => turn.mode !== "live").map(turn => ({ role: turn.speaker === "student" ? "user" : "assistant", content: turn.text }))}
+          scripted={{
+            turns: attempt.transcript,
+            canAdvance: editable && attempt.transcript.filter(turn => turn.speaker === "patient" && turn.mode !== "live").length < 25,
+            state: conversationState,
+            next: nextConversation,
+            cancel: cancelConversation,
+            replay: replayPatientAnswer,
+          }}
+        />
       )}
-      {patientTab === "scripted" && allowSupplemental && (attempt.transcript.filter(turn => turn.speaker === "patient" && turn.mode !== "live").length >= 25 || !editable) && <LivePatientChat key={`${attempt.id}-supplemental`} compact storageKey={`oece-patient-supplemental-v1:${attempt.id}`} context={attempt.transcript.filter(turn => turn.mode !== "live").map(turn => ({ role: turn.speaker === "student" ? "user" : "assistant", content: turn.text }))} />}
       <DiagnosisNameEditor
         title="初步诊断"
         entries={attempt.historyDiagnoses}

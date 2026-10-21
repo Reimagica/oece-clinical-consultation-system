@@ -16,6 +16,7 @@ export type PatientVoiceId =
 export interface ExamPolicy {
   dimensionWeights?: DimensionWeights;
   allowHistoryReview: boolean;
+  // Legacy persisted field: the unified patient entry is now always available.
   allowSupplementalHistory: boolean;
   physicalOrderScoringEnabled: boolean;
   auxiliaryOrderScoringEnabled: boolean;

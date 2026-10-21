@@ -801,11 +801,7 @@ body {
     font-size: 56px;
   }
 }
-.supplemental-chat { margin-top: 24px; }
-.supplemental-chat .patient-stage { padding: 20px; }
-.supplemental-chat .experience-compose { margin-top: 0; }
 .experience-compose p { color: #61748c; font-size: 15px; margin: 8px 0 12px; }
-.supplemental-chat .transcript-list { height: 300px; }
 
 /* A single blank draft fills the exam drawer. */
 .notes-drawer {

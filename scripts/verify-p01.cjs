@@ -21,8 +21,8 @@ const attempt = data.emptyAttempt('test');
 const exam = { id: 'test', policy: data.defaultExamPolicy };
 let count = 0;
 function test(name, run) { run(); count++; console.log('PASS', name); }
-test('effective maximums stay 292 / 275 / 277 / 260', () => {
-  for (const [physical, auxiliary, expected] of [[true,true,292],[false,true,275],[true,false,277],[false,false,260]]) {
+test('effective maximums stay 300 / 283 / 285 / 268', () => {
+  for (const [physical, auxiliary, expected] of [[true,true,300],[false,true,283],[true,false,285],[false,false,268]]) {
     const dimensions = buildDimensions({ policy: { physicalOrderScoringEnabled: physical, auxiliaryOrderScoringEnabled: auxiliary } }, attempt);
     assert.equal(dimensions.reduce((sum,d) => sum + (d.maximum ?? 0),0), expected);
   }
@@ -106,15 +106,15 @@ test('stage four starts with case report, removes redundant recaps and has one f
 });
 const scoring = load('score-policy'), flow = load('check-results');
 test('percentage total uses equal dimension ratios, never raw point sums', () => {
-  const dimensions = [72,50,50,20,90,10].map((maximum,index)=>({id:scoring.scoringDimensions[index].id, maximum,earned:maximum/2}));
+  const dimensions = [80,50,50,20,90,10].map((maximum,index)=>({id:scoring.scoringDimensions[index].id, maximum,earned:maximum/2}));
   assert.equal(scoring.weightedScore(dimensions),50);
-  dimensions[0].earned=72;
+  dimensions[0].earned=80;
   assert.equal(scoring.weightedScore(dimensions),58.3);
   dimensions.push({id:'reasoning',maximum:null,earned:null});
   assert.equal(scoring.weightedScore(dimensions),58.3);
 });
 test('custom weights, exclusions and pending review are explicit', () => {
-  const dimensions=[{id:'history',maximum:72,earned:72},{id:'physical',maximum:50,earned:0}];
+  const dimensions=[{id:'history',maximum:80,earned:80},{id:'physical',maximum:50,earned:0}];
   assert.equal(scoring.weightedScore(dimensions,{history:3,physical:1}),75);
   dimensions[1].earned=null;
   assert.equal(scoring.weightedScore(dimensions,{history:3,physical:1}),null);
@@ -172,5 +172,84 @@ test('model matching never broadens precise feedback or supplies invented result
   assert.equal(flow.matchedCheckResult('auxiliary','CT',{kind:'result',key:'胸部X线'}).kind,'clarification');
   assert.equal(flow.matchedCheckResult('auxiliary','其他项目',{kind:'result',key:'捏造结果'}).kind,'unavailable');
   assert.equal(flow.matchedCheckResult('physical','请听听两肺',{kind:'result',key:'双肺听诊'}).text,checks.physicalFindings['双肺听诊']);
+});
+const rubric = load('heart-failure-rubric');
+const sourceHistory = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/history-rubric-20261016.json'), 'utf8'));
+const teacher = load('teacher-store'), schema = load('teacher-case-schema');
+const plain = value => JSON.parse(JSON.stringify(value));
+function legacyCase() {
+  const record = plain(teacher.seedCase());
+  delete record.historyRubricVersion;
+  record.references[0].maximum = 72;
+  record.references[0].items.forEach((item, index) => { item.points = sourceHistory.previousPoints[index]; });
+  return record;
+}
+test('all 41 history items match the corrected supplied Word and total 80', () => {
+  assert.equal(rubric.historyRubric.length,41);
+  assert.deepEqual(plain(rubric.historyRubric.map(({label,max})=>({label,max}))),sourceHistory.items);
+  assert.equal(rubric.historyRubric.reduce((n,item)=>n+item.max,0),80);
+  assert.equal(sourceHistory.previousPoints.reduce((n,points)=>n+points,0),72);
+  assert.equal(checks.caseConflicts.some(text=>/病史细项72分/.test(text)),false);
+});
+test('history awards corrected points using the existing questions and evidence', () => {
+  const transcript=data.conversationScript.flatMap((pair,i)=>[
+    {id:`q-${i}`,speaker:'student',text:pair.student,time:'12:00',mode:'scripted'},
+    {id:`p-${i}`,speaker:'patient',text:pair.patient,time:'12:01',mode:'scripted'}
+  ]);
+  const history=buildDimensions(exam,{...attempt,transcript})[0];
+  assert.equal(history.maximum,80);
+  history.items.forEach((item,i)=>{
+    assert.equal(item.maximum,sourceHistory.items[i].max);
+    assert.ok(item.earned>=0 && item.earned<=item.maximum);
+    if(item.earned) assert.match(item.evidence,/考生：/);
+  });
+});
+test('new teacher cases expose the same 80-point history reference', () => {
+  const record=teacher.seedCase(), history=record.references[0];
+  assert.equal(history.maximum,80);
+  assert.deepEqual(plain(history.items.map(item=>item.points)),sourceHistory.items.map(item=>item.max));
+  assert.equal(record.historyRubricVersion,rubric.HISTORY_RUBRIC_VERSION);
+});
+test('untouched legacy history migrates without changing patient data or other dimensions', () => {
+  const record=legacyCase();
+  record.details.medicalHistory.presentIllness='保留教师编辑的病历';
+  record.references[1].items[0].answer='保留其他维度编辑';
+  const before=plain(record), updated=schema.upgradeCase(record);
+  assert.equal(updated.references[0].maximum,80);
+  assert.deepEqual(plain(updated.references[0].items.map(item=>item.points)),sourceHistory.items.map(item=>item.max));
+  assert.deepEqual(plain(updated.details),before.details);
+  assert.deepEqual(plain(updated.references.slice(1)),before.references.slice(1));
+  assert.deepEqual(plain(record),before,'migration must not mutate stored input');
+  assert.deepEqual(plain(schema.upgradeCase(updated)),plain(updated),'migration must be idempotent');
+  const store={version:1,cases:[before],
+    drafts:[{id:'draft-keep',title:'保留草稿',caseId:record.id,policy:data.defaultExamPolicy,updatedAt:'2026-10-15'}],
+    archives:[{id:'archive-keep',exam:{id:'old-exam'},attempt:null,archivedAt:'2026-10-15'}]};
+  const restored=teacher.readTeacherStore(JSON.stringify(store));
+  assert.equal(restored.cases[0].references[0].maximum,80);
+  assert.deepEqual(plain(restored.drafts),plain(store.drafts));
+  assert.deepEqual(plain(restored.archives),plain(store.archives));
+});
+test('custom history, copied cases and explicitly saved revision choices stay intact', () => {
+  for(const change of [
+    record=>{record.references[0].items[10].points=3;},
+    record=>{record.references[0].items[10].answer='教师改写答案';},
+    record=>{record.references[0].items[10].scoringNotes='教师自定给分';},
+    record=>{record.references[0].maximum=null;},
+    record=>{record.builtin=false;record.id='teacher-copy';},
+    record=>{record.historyRubricVersion=rubric.HISTORY_RUBRIC_VERSION;}
+  ]){
+    const record=legacyCase();change(record);
+    assert.deepEqual(plain(schema.upgradeCase(record).references),record.references);
+  }
+});
+test('old saved highest scores are excluded from the new rubric ranking, not deleted', () => {
+  const key=scoring.scoringKey(data.defaultExamPolicy);
+  assert.ok(key.startsWith(checks.RULE_VERSION+':'));
+  const oldKey=key.slice(key.indexOf(':')+1);
+  const entries=[{learnerId:'me',name:'我',caseId:'case-a',scoringKey:oldKey,score:99},
+    {learnerId:'me',name:'我',caseId:'case-a',scoringKey:key,score:85}];
+  assert.equal(scoring.bestScores(entries,'case-a',key)[0].score,85);
+  assert.equal(entries[0].score,99);
+  assert.equal(entries.length,2);
 });
 console.log(`${count} regression checks passed.`);

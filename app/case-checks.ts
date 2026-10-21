@@ -1,8 +1,7 @@
 // Transcribed from the approved source Word. Conflicts remain explicit.
 export const CASE_VERSION = "hf-2025-20260924";
-export const RULE_VERSION = "hf-review-20260924";
+export const RULE_VERSION = "hf-review-20261016";
 export const caseConflicts = [
-  "病史细项72分与标称80分相差8分，暂不计入有效满分。",
   "阶段一哮喘／COPD标准不同，等待医学确认。",
   "诊断依据正文与表格分值不同，暂沿用表格满分，具体判分待复核。",
   "原资料BUN／肌酐比值42与所列数值不一致，该比值暂不展示。",

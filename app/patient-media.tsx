@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useRef, useState } from "react";
-import { finishPatientAction, playPatientCough, stopPatientPlayback, usePatientPlayback, type PatientPlayback } from "./patient-playback";
+import { finishPatientAction, stopPatientPlayback, usePatientPlayback, type PatientPlayback } from "./patient-playback";
 import "./patient-media.css";
 
 type Phase = "talk-start" | "talk-loop" | "talk-end" | "cough";
@@ -74,7 +74,6 @@ export default function PatientMedia({ alt }: { alt: string }) {
 export function PatientMediaTools() {
   const playback = usePatientPlayback();
   return <div className="patient-media-tools">
-    <button type="button" onClick={playPatientCough} disabled={playback.speaking || playback.loading || playback.kind === "cough"}>演示咳嗽</button>
     <button type="button" onClick={stopPatientPlayback} disabled={playback.kind === "idle"}>停止播放</button>
     {playback.error && <span role="status">{playback.error}</span>}
   </div>;

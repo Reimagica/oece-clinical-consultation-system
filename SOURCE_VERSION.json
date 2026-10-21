@@ -1,0 +1,9 @@
+{
+  "deliveryDate": "2026-10-21",
+  "publishedVersion": 14,
+  "sourceCommit": "13849d1e81eaf86b91ff7b4cb97c3481826f032c",
+  "runtimeScoring": "Existing 80/50/50/20/90/10 demo rules; R-IDEA not integrated",
+  "plannedScoringDocuments": "docs/scoring",
+  "originalHostingIdentityRemoved": true,
+  "rawResearchDataIncluded": false
+}

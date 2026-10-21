@@ -1,3 +1,5 @@
+import { RULE_VERSION } from "./case-checks";
+
 export const scoringDimensions = [
   { id: "history", title: "病史采集完整性" },
   { id: "physical", title: "体格检查针对性" },
@@ -36,7 +38,8 @@ export type RankingEntry = { learnerId: string; name: string; score: number; cas
 export function scoringKey(policy: { physicalOrderScoringEnabled: boolean; auxiliaryOrderScoringEnabled: boolean; dimensionWeights?: Partial<DimensionWeights> }) {
   const weights = normalizeWeights(policy.dimensionWeights);
   const sum = Object.values(weights).reduce((value, weight) => value + weight, 0);
-  return [policy.physicalOrderScoringEnabled, policy.auxiliaryOrderScoringEnabled, ...scoringDimensions.map(({ id }) => (weights[id] / sum).toFixed(6))].join(":");
+  // Keep saved scores under earlier rubrics, but never rank them against this revision.
+  return [RULE_VERSION, policy.physicalOrderScoringEnabled, policy.auxiliaryOrderScoringEnabled, ...scoringDimensions.map(({ id }) => (weights[id] / sum).toFixed(6))].join(":");
 }
 export function bestScores(entries: RankingEntry[], caseId: string, key: string): RankingEntry[] {
   const best = new Map<string, RankingEntry>();
